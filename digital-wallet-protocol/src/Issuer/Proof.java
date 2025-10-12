@@ -1,17 +1,17 @@
 package Issuer;
 
 public class Proof {
-    MerkleTree merkleTree;
-    String signedRoot;
+    public String proofName;
+    public MerkleTree merkleTree;
+    public byte[] signedRoot;
+    public Issuer issuer;
 
 
-    public Proof(MerkleTree merkleTree, String signedRoot) {
+    public Proof(String proofName, MerkleTree merkleTree, byte[] signedRoot, Issuer issuer) {
+        this.proofName = proofName;
         this.merkleTree = merkleTree;
         this.signedRoot = signedRoot;
-    }
-
-    public void generateProof(int index) {
-        // ...
+        this.issuer = issuer;
     }
 
 }

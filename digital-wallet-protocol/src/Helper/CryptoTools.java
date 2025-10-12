@@ -1,6 +1,11 @@
 package Helper;
 
+import Issuer.MerkleTree;
+import Issuer.Node;
+
 import java.security.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CryptoTools {
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -46,20 +51,33 @@ public class CryptoTools {
         var sig = Signature.getInstance("SHA256withRSA");
         sig.initSign(key, RANDOM);
         sig.update(message);
+
         return sig.sign();
     }
 
-    public static boolean verifyMessage(PublicKey key, byte[] message, byte[] signedMessage) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    public static boolean verifySignatureMessage(PublicKey key, byte[] message, byte[] signedMessage) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         var sig = Signature.getInstance("SHA256withRSA");
-
         sig.initVerify(key);
         sig.update(message);
 
         return sig.verify(signedMessage);
     }
 
+    public static InclusionPath generateInclusionPath(MerkleTree merkleTree, int index) {
+        var tree = merkleTree.tree;
+        Node currentNode = tree.getFirst().get(index);
+        InclusionPath path = new InclusionPath();
 
+        while(currentNode.parent != null) {
+            var parent = currentNode.parent;
+            var siblingIsLeft = (parent.children[0] != currentNode);
+            var siblingHash = (siblingIsLeft) ? parent.children[0].hash : parent.children[1].hash;
 
-    
+            path.addPath(siblingHash, siblingIsLeft);
+            currentNode = parent;
+        }
 
+        return path;
+    }
 }
+
