@@ -21,7 +21,8 @@ public class main {
         // holder requesting proof from issuer
         holder.requestProof("AgeProof", TrustedService.issuers.get("GovernmentBody0"));
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 31; i++) {
+            System.out.println();
             // holder presenting proof to verifier
             var presentation = holder.presentProof("AgeProof", 2);
 

@@ -14,37 +14,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Holder {
+    // contains a map of proofs. Each proof type will have single key, containing a list of proofs from that type
     Map<String, ArrayList<Proof>> proofs = new HashMap<>();
 
+    // request a specific proof from an issuer
     public void requestProof(String proofName, Issuer issuer) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         System.out.println(proofName + " proof requested");
-         proofs.put(proofName, issuer.requestProof(proofName));
+        // add the proofs to a map of proofs
+        proofs.put(proofName, issuer.requestProof(proofName));
     }
 
+    // presenting a proof
     public PresentationProof presentProof(String proofName, int index) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
-        var proofs = this.proofs.get(proofName);
-        var proof = proofs.getFirst();
-        proofs.removeFirst();
 
+        // access the list of proofs from a proof type
+        var proofs = this.proofs.get(proofName);
+
+        // get the first index of the list and remove it.
+        var proof = proofs.removeFirst();
 
         System.out.println("Presenting proof: " + proofName);
         System.out.println(proofs.size() + " proofs left.");
 
         System.out.println("Root of tree: " + Arrays.toString(proof.merkleTree.root.hash));
+        System.out.println("Signature of root: " + Arrays.toString(proof.signedRoot));
+        System.out.println();
 
-        // replace batch
+        // replace batch if list is empty
         if (proofs.isEmpty()) requestProof(proofName, proof.issuer);
 
+        //
         var tree = proof.merkleTree;
 
-        var disclosedAttributes = new DisclosedAttribute<>(tree.salts[index], tree.attributes[index].getBytes());
+        // present the disclosed attribute and salt, the inclusion path and the signed root
+        var disclosedAttributes = new DisclosedAttribute(tree.salts[index], tree.attributes[index].getBytes());
         InclusionPath path = CryptoTools.generateInclusionPath(tree, index);
 
 
         return new PresentationProof(disclosedAttributes, path, proof.signedRoot, proof.issuer);
     }
-
-
-
 }
 
