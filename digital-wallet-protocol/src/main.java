@@ -35,9 +35,6 @@ public class main {
 
         System.out.println("unique roots: " + Verifier.rootsVerified.size());
 
-
-
     }
-
 
 }

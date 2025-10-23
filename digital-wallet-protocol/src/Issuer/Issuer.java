@@ -1,6 +1,7 @@
 package Issuer;
 
 import Helper.CryptoTools;
+import Helper.TrustedService;
 
 import java.security.*;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class Issuer {
         this.name = name;
     }
 
-    private ArrayList<Proof> sendProofs(String proofname) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    private ArrayList<Proof> sendProofs(String proofName) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         // list to store proofs (use almost like a stack)
         ArrayList<Proof> proofs = new ArrayList<>();
 
@@ -38,8 +39,8 @@ public class Issuer {
             var sign = CryptoTools.signMessage(privateKey, tree.root.hash);
 
             // add the proof the to list
-            proofs.add(new Proof(proofname, tree, sign, this));
-            System.out.println("Proof " + proofname + " " + (i+1) + " created. Root: " + Arrays.toString(proofs.getLast().merkleTree.root.hash));
+            proofs.add(new Proof(proofName, tree, sign, this));
+            System.out.println("Proof " + proofName + " " + (i+1) + " created. Root: " + Arrays.toString(proofs.getLast().merkleTree.root.hash));
         }
         System.out.println(BATCHSIZE + " new proofs created.");
 
@@ -48,7 +49,11 @@ public class Issuer {
     }
 
     // used to imitate a request, there should be some authentication process of some kind
-    public ArrayList<Proof> requestProof(String proofname) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
-        return sendProofs(proofname);
+    public ArrayList<Proof> requestProof(String proofName) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+        return sendProofs(proofName);
+    }
+
+    public boolean revokeAttestation(String attestationNo) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+        return TrustedService.addRevocation(attestationNo);
     }
 }

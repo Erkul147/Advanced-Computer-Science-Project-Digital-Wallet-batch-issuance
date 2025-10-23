@@ -1,6 +1,7 @@
 package Verifier;
 
 import Helper.CryptoTools;
+import Helper.TrustedService;
 import Holder.PresentationProof;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -57,5 +58,9 @@ public class Verifier {
         }
 
         return verified;
+    }
+
+    public boolean checkValidityOfAttestation(String attestationNo) {
+        return TrustedService.validateAttestation(attestationNo);
     }
 }
