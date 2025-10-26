@@ -2,6 +2,7 @@ package Holder;
 
 import Helper.CryptoTools;
 import Helper.InclusionPath;
+import Helper.TrustedService;
 import Issuer.Issuer;
 import Issuer.Proof;
 
@@ -22,7 +23,7 @@ public class Holder {
     public void requestProof(String proofName, Issuer issuer) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         System.out.println(proofName + " proof requested");
         // add the proofs to a map of proofs
-        proofs.put(proofName, issuer.requestProof(proofName));
+        proofs.put(proofName, issuer.requestProof(proofName, "DK6789012"));
     }
 
     // presenting a proof
@@ -42,7 +43,7 @@ public class Holder {
         System.out.println();
 
         // replace batch if list is empty
-        if (proofs.isEmpty()) requestProof(proofName, proof.issuer);
+        if (proofs.isEmpty()) requestProof(proofName, TrustedService.issuers.get("GovernmentBody0"));
 
         //
         var tree = proof.merkleTree;
@@ -52,7 +53,7 @@ public class Holder {
         InclusionPath path = CryptoTools.generateInclusionPath(tree, index);
 
 
-        return new PresentationProof(disclosedAttributes, path, proof.signedRoot, proof.issuer);
+        return new PresentationProof(disclosedAttributes, path, proof.signedRoot, TrustedService.issuers.get("GovernmentBody0"));
     }
 }
 

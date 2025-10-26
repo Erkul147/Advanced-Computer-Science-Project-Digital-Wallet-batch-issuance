@@ -32,10 +32,12 @@ public class Issuer {
 
     private String[] getPID(String ID) {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("attributes.csv"));
+            System.out.println(System.getProperty("user.dir"));
+            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/Issuer/attributes.csv"));
 
             for (String line = br.readLine(); line != null; line = br.readLine() ) {
                 if  (line.contains(ID)) {
+                    System.out.println(line);
                     return line.split(",");
                 }
             }
