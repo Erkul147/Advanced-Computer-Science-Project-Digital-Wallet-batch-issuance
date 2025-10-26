@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Holder {
+
     // contains a map of proofs. Each proof type will have single key, containing a list of proofs from that type
     Map<String, ArrayList<Proof>> proofs = new HashMap<>();
 
