@@ -1,9 +1,11 @@
-package Issuer;
+package CommitmentSchemes;
 
 import Helper.CryptoTools;
+import Helper.InclusionPath;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class MerkleTree {
@@ -35,7 +37,7 @@ public class MerkleTree {
 
             // combine the attribute with the salt and has them together
             var combinedAttributeSalt = CryptoTools.combineByteArrays(attributes[i].getBytes(), salts[i]);
-            var hash = CryptoTools.hash(combinedAttributeSalt);
+            var hash = CryptoTools.hashSHA256(combinedAttributeSalt);
 
 
             // instantiate a new node and add it to the level
@@ -80,7 +82,7 @@ public class MerkleTree {
 
                 // combine the hash of the children
                 var childrenHashCombined = CryptoTools.combineByteArrays(child1.hash, child2.hash);
-                var hash = CryptoTools.hash(childrenHashCombined);
+                var hash = CryptoTools.hashSHA256(childrenHashCombined);
 
                 // create the "current node"
                 node = new Node(hash, height, i, null, children);
@@ -103,5 +105,39 @@ public class MerkleTree {
         // when we are out of the while loop, the root has been found, which would be the last node created
         root = node;
     }
+
+    // generate inclusion paths needed to compute the root of a merkle tree from a given index
+    public InclusionPath generateInclusionPath(int index) {
+
+        // find the starting node
+        Node currentNode = tree.getFirst().get(index);
+
+        // instantiate an inclusion path object
+        InclusionPath path = new InclusionPath();
+
+        System.out.println("Generating inclusion path for index: " + index);
+        System.out.println("path: ");
+
+        while(currentNode.parent != null) {
+
+            // find parent of the current node
+            var parent = currentNode.parent;
+
+            // check if sibling of the current node is child1(left) or child2(right)
+            var siblingIsLeft = (parent.children[0] != currentNode);
+
+            // find sibling node's hash
+            var siblingHash = (siblingIsLeft) ? parent.children[0].hash : parent.children[1].hash;
+
+            // add directional information and the hash of the sibling
+            path.addPath(siblingHash, siblingIsLeft);
+            System.out.println("Sibling hash: " + Arrays.toString(siblingHash) + ", left: " + siblingIsLeft);
+            currentNode = parent;
+        }
+
+        return path;
+    }
+
 }
+
 

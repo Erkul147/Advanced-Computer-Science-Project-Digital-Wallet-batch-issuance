@@ -1,7 +1,8 @@
 package Helper;
 
-import Issuer.Issuer;
+import IHV.Issuer;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,10 @@ public class TrustedService {
         }
     }
 
+    public static PublicKey getPublicKey(String issuer) {
+        return issuers.get(issuer).publicKey;
+    }
+
     public static boolean addRevocation(String attestationNo) {
         if (revocationList.contains(attestationNo)) {
             System.out.println("Revocation already exists");
@@ -31,7 +36,8 @@ public class TrustedService {
         return true;
     }
 
-    public static boolean validateAttestation(String attestationNo) {
+    public static boolean isProofRevoked(String attestationNo) {
+        System.out.println("Proof not valid: revoked - " + attestationNo);
         return revocationList.contains(attestationNo);
     }
 

@@ -1,16 +1,13 @@
-import Helper.CryptoTools;
 import Helper.TrustedService;
-import Holder.Holder;
-import Issuer.Issuer;
-import Verifier.Verifier;
+import DataObjects.VerifiablePresentation;
+import IHV.Holder;
+import IHV.Verifier;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.HashMap;
-import java.util.Map;
 
-public class main {
+public class Main {
     
     public static void main(String[] args) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
@@ -19,12 +16,15 @@ public class main {
         var verifier = new Verifier();
 
         // holder requesting proof from issuer
-        holder.requestProof("AgeProof", TrustedService.issuers.get("GovernmentBody0"));
+        holder.requestProof("CitizensCard", TrustedService.issuers.get("GovernmentBody0"));
 
-        for (int i = 0; i < 31; i++) {
+        for (int i = 0; i < 2; i++) {
             System.out.println();
             // holder presenting proof to verifier
-            var presentation = holder.presentProof("AgeProof", 2);
+            VerifiablePresentation presentation = holder.presentProof("CitizensCard", 2);
+
+            TrustedService.addRevocation(presentation.md.ID);
+
 
             // verification: true / false
             boolean verification = verifier.verify(presentation);

@@ -1,4 +1,4 @@
-package Holder;
+package DataObjects;
 
 public class DisclosedAttribute {
     public byte[] salt;

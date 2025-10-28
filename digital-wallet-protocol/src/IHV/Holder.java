@@ -1,10 +1,10 @@
-package Holder;
+package IHV;
 
-import Helper.CryptoTools;
+import DataObjects.DisclosedAttribute;
+import DataObjects.VerifiableCredential;
+import DataObjects.VerifiablePresentation;
 import Helper.InclusionPath;
 import Helper.TrustedService;
-import Issuer.Issuer;
-import Issuer.Proof;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class Holder {
 
     // contains a map of proofs. Each proof type will have single key, containing a list of proofs from that type
-    Map<String, ArrayList<Proof>> proofs = new HashMap<>();
+    Map<String, ArrayList<VerifiableCredential>> proofs = new HashMap<>();
 
     // request a specific proof from an issuer
     public void requestProof(String proofName, Issuer issuer) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
@@ -27,12 +27,14 @@ public class Holder {
     }
 
     // presenting a proof
-    public PresentationProof presentProof(String proofName, int index) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public VerifiablePresentation presentProof(String proofName, int index) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
 
         // access the list of proofs from a proof type
         var proofs = this.proofs.get(proofName);
 
-        // get the first index of the list and remove it.
+        // ONE TIME USE: get the first index of the list and remove it.
+        if (proofs == null) return null;
+
         var proof = proofs.removeFirst();
 
         System.out.println("Presenting proof: " + proofName);
@@ -50,10 +52,10 @@ public class Holder {
 
         // present the disclosed attribute and salt, the inclusion path and the signed root
         var disclosedAttributes = new DisclosedAttribute(tree.salts[index], tree.attributes[index].getBytes());
-        InclusionPath path = CryptoTools.generateInclusionPath(tree, index);
+        InclusionPath path = tree.generateInclusionPath(index);
 
 
-        return new PresentationProof(disclosedAttributes, path, proof.signedRoot, TrustedService.issuers.get("GovernmentBody0"));
+        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, "GovernmentBody0");
     }
 }
 

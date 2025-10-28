@@ -8,7 +8,7 @@ A research project exploring **unlinkability** in **batch issuance of digital wa
 
 This project investigates how **digital information** and **wallet issuance mechanisms** can be designed to ensure **unlinkability** - which will prevent RPs and IdP to link a person to multiple places. 
 
-The prototype focuses on a **Batch Issuance** model, where 30 credentials or proofs (Merkle trees) are issued simultaneously, and when used up are automatically requested.
+The prototype focuses on a **Batch Issuance** model, where 30 credentials or verifiableCredentials (Merkle trees) are issued simultaneously, and when used up are automatically requested.
 
 ---
 

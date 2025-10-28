@@ -1,27 +1,27 @@
-package Issuer;
+package IHV;
 
+import CommitmentSchemes.MerkleTree;
+import DataObjects.MetaData;
+import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Helper.TrustedService;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Issuer {
     // asymmetrical keypair specific to an issuer
-    private final KeyPair keyPair = CryptoTools.generateAsymmentricalKeys();
+    private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
     private final PrivateKey privateKey = keyPair.getPrivate();
     public final PublicKey publicKey = keyPair.getPublic();
 
     // name of issuer
     public String name;
 
-    private String country = "Denmark";
+    public final String country = "Denmark";
 
     // size of proof batches
     private final int BATCHSIZE = 30;
@@ -30,11 +30,13 @@ public class Issuer {
         this.name = name;
     }
 
+    // the csv file acts as a secure data registry
     private String[] getPID(String ID) {
         try {
-            System.out.println(System.getProperty("user.dir"));
-            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/Issuer/attributes.csv"));
+            // create buffered reader that reads the csv
+            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
 
+            // fake query: find id
             for (String line = br.readLine(); line != null; line = br.readLine() ) {
                 if  (line.contains(ID)) {
                     System.out.println(line);
@@ -47,9 +49,9 @@ public class Issuer {
         return null;
     }
 
-    private ArrayList<Proof> sendProofs(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    private ArrayList<VerifiableCredential> sendProofs(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         // list to store proofs (use almost like a stack)
-        ArrayList<Proof> proofs = new ArrayList<>();
+        ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
 
         // fake attributes
         String[] attributes = getPID(ID);
@@ -58,26 +60,28 @@ public class Issuer {
 
         // create all proofs
         for (int i = 0; i < BATCHSIZE; i++) {
-            var metaData = new MetaData(country, name, "1-1-2030", "RSA");
 
-            // create the tree
-            var tree = new MerkleTree(attributes);
+            // metadata
+            MetaData metaData = new MetaData(country, name, "1-1-2030", "RSA");
 
-            // sign the root of the tree
-            var sign = CryptoTools.signMessage(privateKey, tree.root.hash);
+            // create the payload
+            MerkleTree tree = new MerkleTree(attributes);
+
+            // signature of the root
+            byte[] sign = CryptoTools.signMessage(privateKey, tree.root.hash);
 
             // add the proof the to list
-            proofs.add(new Proof(proofName, metaData, tree, sign));
-            System.out.println("Proof " + proofName + " " + (i+1) + " created. Root: " + Arrays.toString(proofs.getLast().merkleTree.root.hash));
+            verifiableCredentials.add(new VerifiableCredential(proofName, metaData, tree, sign));
+            System.out.println("Proof " + proofName + " " + (i+1) + " created. Root: " + Arrays.toString(verifiableCredentials.getLast().merkleTree.root.hash));
         }
         System.out.println(BATCHSIZE + " new proofs created.");
 
         System.out.println();
-        return proofs;
+        return verifiableCredentials;
     }
 
     // used to imitate a request, there should be some authentication process of some kind
-    public ArrayList<Proof> requestProof(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public ArrayList<VerifiableCredential> requestProof(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         return sendProofs(proofName, ID);
     }
 

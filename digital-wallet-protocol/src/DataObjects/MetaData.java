@@ -1,8 +1,10 @@
-package Issuer;
+package DataObjects;
+import java.util.UUID;
 
 import java.sql.Timestamp;;
 
 public class MetaData {
+    public final String ID = UUID.randomUUID().toString();
     public String issuingCountry;
     public String issuingAuthority;
     public String expiryDate;

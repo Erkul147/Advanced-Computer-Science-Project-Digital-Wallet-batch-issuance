@@ -1,4 +1,4 @@
-package Issuer;
+package CommitmentSchemes;
 
 import java.util.Arrays;
 
