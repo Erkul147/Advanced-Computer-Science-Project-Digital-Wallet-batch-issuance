@@ -1,3 +1,4 @@
+import CommitmentSchemes.HashList;
 import Helper.TrustedService;
 import DataObjects.VerifiablePresentation;
 import IHV.Holder;
@@ -10,6 +11,15 @@ import java.security.SignatureException;
 public class Main {
     
     public static void main(String[] args) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+        //testRevocation();
+        HashList hashList = new HashList(new String[]{"a", "b", "c", "d"});
+
+
+
+
+    }
+
+    private static void testRevocation() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
 
         var holder = new Holder();
@@ -34,7 +44,10 @@ public class Main {
         }
 
         System.out.println("unique roots: " + Verifier.rootsVerified.size());
-
     }
+
+
+
+
 
 }

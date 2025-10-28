@@ -40,10 +40,15 @@ public class CryptoTools {
     }
 
     // hash a byte array using SHA-256
-    public static byte[] hashSHA256(byte[] message) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(message);
-        return md.digest();
+    public static byte[] hashSHA256(byte[] message) {
+        byte[] hashedMessage = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(message);
+            hashedMessage = md.digest();
+        } catch (NoSuchAlgorithmException e) {e.printStackTrace();}
+
+        return hashedMessage;
     }
 
     // using SHA256 with RSA to sign a message
