@@ -52,21 +52,28 @@ public class CryptoTools {
     }
 
     // using SHA256 with RSA to sign a message
-    public static byte[] signMessage(PrivateKey key, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        var sig = Signature.getInstance("SHA256withRSA");
-        sig.initSign(key, RANDOM);
-        sig.update(message);
+    public static byte[] signMessage(PrivateKey key, byte[] message) {
+        try {
+            var sig = Signature.getInstance("SHA256withRSA");
+            sig.initSign(key, RANDOM);
+            sig.update(message);
 
-        return sig.sign();
+            return sig.sign();
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {e.printStackTrace();}
+
+        return null;
     }
 
     // check signatures using SHA256 with RSA to verify a message has been signed from a specific issuer, using their public key
-    public static boolean verifySignatureMessage(PublicKey key, byte[] message, byte[] signedMessage) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        var sig = Signature.getInstance("SHA256withRSA");
-        sig.initVerify(key);
-        sig.update(message);
+    public static boolean verifySignatureMessage(PublicKey key, byte[] message, byte[] signedMessage) {
+        try {
+            var sig = Signature.getInstance("SHA256withRSA");
+            sig.initVerify(key);
+            sig.update(message);
+            return sig.verify(signedMessage);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {e.printStackTrace();}
 
-        return sig.verify(signedMessage);
+        return false;
     }
 
 

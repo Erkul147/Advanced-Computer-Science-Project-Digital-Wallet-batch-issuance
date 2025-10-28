@@ -49,14 +49,14 @@ public class Issuer {
         return null;
     }
 
-    private ArrayList<VerifiableCredential> sendProofs(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    private ArrayList<VerifiableCredential> sendProofs(String proofName, String ID) {
         // list to store proofs (use almost like a stack)
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
 
         // fake attributes
         String[] attributes = getPID(ID);
         if (attributes == null) return null;
-
+        System.out.println("creating merkle tree proofs");
 
         // create all proofs
         for (int i = 0; i < BATCHSIZE; i++) {
@@ -81,11 +81,11 @@ public class Issuer {
     }
 
     // used to imitate a request, there should be some authentication process of some kind
-    public ArrayList<VerifiableCredential> requestProof(String proofName, String ID) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public ArrayList<VerifiableCredential> requestProof(String proofName, String ID) {
         return sendProofs(proofName, ID);
     }
 
-    public boolean revokeAttestation(String attestationNo) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public boolean revokeAttestation(String attestationNo) {
         return TrustedService.addRevocation(attestationNo);
     }
 

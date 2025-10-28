@@ -1,7 +1,5 @@
 package DataObjects;
 
-import Helper.InclusionPath;
-
 public class VerifiablePresentation {
 
     public DisclosedAttribute disclosedAttribute;

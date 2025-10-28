@@ -16,9 +16,10 @@ public class TrustedService {
     public static List<String> revocationList = new ArrayList<>();
 
     public static void generateIssuers() {
-        for (int i = 0; i < 10; i++) { // random governmentbody
+        for (int i = 0; i < 2; i++) { // random governmentbody
             var name = "GovernmentBody"+i;
             issuers.put(name, new Issuer(name));
+            System.out.println(name);
         }
     }
 
@@ -37,8 +38,9 @@ public class TrustedService {
     }
 
     public static boolean isProofRevoked(String attestationNo) {
-        System.out.println("Proof not valid: revoked - " + attestationNo);
-        return revocationList.contains(attestationNo);
+        var isRevoked = revocationList.contains(attestationNo);
+        if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
+        return isRevoked;
     }
 
 }

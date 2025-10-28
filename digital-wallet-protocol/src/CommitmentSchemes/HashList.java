@@ -1,5 +1,6 @@
 package CommitmentSchemes;
 
+import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ public class HashList {
     }
 
     private void createHashList () {
+        System.out.println("\nCreating hash list\n");
         byte[] combinedHashes = new byte[0];
         list = new byte[attributes.length][32]; // SHA-256 bit: 256 bit / 8 = 32 byte.
         System.out.println("Is combinedHashes empty?: " + Arrays.toString(combinedHashes));
@@ -35,16 +37,22 @@ public class HashList {
             combinedHashes =  CryptoTools.combineByteArrays(combinedHashes, hash);
             System.out.println("Combined hashes: " + Arrays.toString(combinedHashes));
             System.out.println("Combined hashes length: " + combinedHashes.length);
+            System.out.println();
         }
         finalHash = CryptoTools.hashSHA256(combinedHashes);
         System.out.println("FinalHash: " + Arrays.toString(finalHash));
 
     }
 
-    private void generateAuthenticationPath(int[] index) {
+    public AuthenticationSteps generateAuthenticationPath(int[] indexes) {
+        AuthenticationSteps authSteps = new AuthenticationSteps();
 
-
-
+        for (int index : indexes) {
+            System.out.println("Disclosed attribute " + attributes[index] + " index: " + index);
+            authSteps.addAuthenticationSteps(index, attributes[index], salts[index]);
+        }
+        return authSteps;
     }
 
 }
+

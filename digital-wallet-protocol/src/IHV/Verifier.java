@@ -4,10 +4,7 @@ import Helper.CryptoTools;
 import Helper.TrustedService;
 import DataObjects.VerifiablePresentation;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.SignatureException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -15,7 +12,9 @@ public class Verifier {
 
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
 
-    public boolean verify(VerifiablePresentation presentation) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+
+
+    public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println();
         System.out.println("Verification");
 
@@ -57,9 +56,10 @@ public class Verifier {
         PublicKey pk = TrustedService.getPublicKey(presentation.issuer);
         var verified = CryptoTools.verifySignatureMessage(pk, hash, signedRoot);
 
+        // UNLINKABILITY CHECK:
         // if the root is verified then check if the root has been seen before,
-        // if not add it to the system,
-        // else increment the counter
+        // if not add it to the "database",
+        // else increment the counter. the counter shows the amount of times a root has been seen
         if (verified) {
             var count = rootsVerified.get(hash);
             if (count != null) count++;

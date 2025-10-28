@@ -3,12 +3,9 @@ package IHV;
 import DataObjects.DisclosedAttribute;
 import DataObjects.VerifiableCredential;
 import DataObjects.VerifiablePresentation;
-import Helper.InclusionPath;
+import DataObjects.InclusionPath;
 import Helper.TrustedService;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,14 +17,14 @@ public class Holder {
     Map<String, ArrayList<VerifiableCredential>> proofs = new HashMap<>();
 
     // request a specific proof from an issuer
-    public void requestProof(String proofName, Issuer issuer) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public void requestProof(String proofName, Issuer issuer) {
         System.out.println(proofName + " proof requested");
         // add the proofs to a map of proofs
         proofs.put(proofName, issuer.requestProof(proofName, "DK6789012"));
     }
 
     // presenting a proof
-    public VerifiablePresentation presentProof(String proofName, int index) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+    public VerifiablePresentation presentProof(String proofName, int index) {
 
         // access the list of proofs from a proof type
         var proofs = this.proofs.get(proofName);

@@ -1,9 +1,8 @@
 package CommitmentSchemes;
 
 import Helper.CryptoTools;
-import Helper.InclusionPath;
+import DataObjects.InclusionPath;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -15,13 +14,13 @@ public class MerkleTree {
     public Node root;
 
 
-    public MerkleTree(String[] attributes) throws NoSuchAlgorithmException {
+    public MerkleTree(String[] attributes) {
         this.attributes = attributes;
         salts = new byte[attributes.length][20];
         createMerkleTree();
     }
     
-    private void createMerkleTree() throws NoSuchAlgorithmException {
+    private void createMerkleTree() {
         int height = 0; // leaf nodes start at height 0
 
         // level list will be used for "current level"
