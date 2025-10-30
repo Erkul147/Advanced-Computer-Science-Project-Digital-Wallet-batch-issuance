@@ -1,4 +1,5 @@
 import CommitmentSchemes.HashList;
+import CommitmentSchemes.MerkleTree;
 import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
 import Helper.TrustedService;
@@ -7,24 +8,65 @@ import IHV.DataRegistry;
 import IHV.Holder;
 import IHV.Verifier;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class main {
     
     public static void main(String[] args) {
-        TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
+        // Execution time for merkle tree
+        int n = 10000;
+        ArrayList<String> attributes = new ArrayList<>();
 
-        System.out.println("Testing inclusion path of merkle trees and signature:");
-        testVerificationMerkleTree();
-        System.out.println();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("timeExecutionForMerkleTree.csv"))) {
+            bw.write("type,amountOfAttributes,executionTime");
+            bw.newLine();
+            for (int i = 1; i < n; i++) {
 
-        System.out.println("Testing revocation:");
-        testRevocation();
-        System.out.println();
+                attributes.add(Integer.toString(i));
 
-        System.out.println("Testing authentication steps of hash list:");
-        testVerificationHashList();
+                Timestamp before = new Timestamp(System.currentTimeMillis());
+                new MerkleTree(attributes.toArray(new String[0]));
+                Timestamp after = new Timestamp(System.currentTimeMillis());
+                var executionTime = after.getTime() - before.getTime();
+                bw.write("merkletree," + i + "," + executionTime);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Execution time for hashlist
+        /*
+        int n = 10000;
+        ArrayList<String> attributes = new ArrayList<>();
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("timeExecutionForHashList.csv"))) {
+            bw.write("type,amountOfAttributes,executionTime");
+            bw.newLine();
+            for (int i = 1; i < n; i++) {
+
+                attributes.add(Integer.toString(i));
+
+                Timestamp before = new Timestamp(System.currentTimeMillis());
+                new HashList(attributes.toArray(new String[0]));
+                Timestamp after = new Timestamp(System.currentTimeMillis());
+                var executionTime = after.getTime() - before.getTime();
+                bw.write("hashlist," + i + "," + executionTime);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
+
 
     }
 
