@@ -15,14 +15,30 @@ public class Holder {
 
     // contains a map of proofs. Each proof type will have single key, containing a list of proofs from that type
     Map<String, ArrayList<VerifiableCredential>> proofs = new HashMap<>();
+    private String ID; // acts as a wallet bound ID from a PID issuer
 
+    public Holder(String ID) {
+        this.ID = ID;
+    }
+
+    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
+    // Issuing document step 1.
     // request a specific proof from an issuer
     public void requestProof(String proofName, Issuer issuer) {
         System.out.println(proofName + " proof requested");
         // add the proofs to a map of proofs
-        proofs.put(proofName, issuer.requestProof(proofName, "DK6789012"));
+        proofs.put(proofName, issuer.requestProof(proofName, ID));
     }
 
+    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
+    // Issuing document step 4.
+    // TODO: implement a method for verifying the accuracy of the document.
+    public boolean verifyDocument() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
+    // Issuing document step 5.
     // presenting a proof
     public VerifiablePresentation presentProof(String proofName, int index) {
 
@@ -42,7 +58,7 @@ public class Holder {
         System.out.println();
 
         // replace batch if list is empty
-        if (proofs.isEmpty()) requestProof(proofName, TrustedService.issuers.get("GovernmentBody0"));
+        if (proofs.isEmpty()) requestProof(proofName, TrustedService.issuers.get(proof.metaData.issuerName));
 
         //
         var tree = proof.merkleTree;
@@ -52,7 +68,10 @@ public class Holder {
         InclusionPath path = tree.generateInclusionPath(index);
 
 
-        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, "GovernmentBody0");
+        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, proof.metaData.issuerName);
     }
+
+
+
 }
 

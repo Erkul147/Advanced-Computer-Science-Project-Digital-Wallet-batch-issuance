@@ -10,9 +10,9 @@ import java.util.HashMap;
 
 public class Verifier {
 
+    // RootsVerified acts as a database or a collection that store roots that are verified.
+    // Will store every root from all verifiers. This is for unlinkability data.
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
-
-
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println();
@@ -24,7 +24,7 @@ public class Verifier {
         // use same signature alg
         // presentation.md.signatureAlgorithm
 
-        if (TrustedService.isProofRevoked(presentation.md.ID)) return false;
+        if (DataRegistry.isProofRevoked(presentation.md.ID)) return false;
 
         // information from the presentation
         var disclosedAttribute = presentation.disclosedAttribute;

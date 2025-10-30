@@ -5,6 +5,7 @@ import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Helper.TrustedService;
+import jdk.jshell.spi.ExecutionControl;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -30,11 +31,14 @@ public class Issuer {
         this.name = name;
     }
 
+    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
+    // Issuing document step 2 and 3. (We have not included authentication data yet. We need public and private keys to create holder DID that PID can bind to the wallet.)
     // the csv file acts as a secure data registry
     private String[] getPID(String ID) {
+        System.out.println(System.getProperty("user.dir"));
         try {
             // create buffered reader that reads the csv
-            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
+            BufferedReader br = new BufferedReader(new FileReader("src/attributes.csv"));
 
             // fake query: find id
             for (String line = br.readLine(); line != null; line = br.readLine() ) {
@@ -49,6 +53,8 @@ public class Issuer {
         return null;
     }
 
+    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
+    // Issuing document step 3.
     private ArrayList<VerifiableCredential> sendProofs(String proofName, String ID) {
         // list to store proofs (use almost like a stack)
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
@@ -57,12 +63,13 @@ public class Issuer {
         String[] attributes = getPID(ID);
         if (attributes == null) return null;
         System.out.println("creating merkle tree proofs");
+        String[] type = new String[]{"VerifiableCredential", proofName};
 
         // create all proofs
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
-            MetaData metaData = new MetaData(country, name, "1-1-2030", "RSA");
+            MetaData metaData = new MetaData(name, country, type.clone(), "1-1-2030", "RSA");
 
             // create the payload
             MerkleTree tree = new MerkleTree(attributes);
@@ -85,8 +92,13 @@ public class Issuer {
         return sendProofs(proofName, ID);
     }
 
+    //TODO:
+    public boolean authenticateUserIdentity() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public boolean revokeAttestation(String attestationNo) {
-        return TrustedService.addRevocation(attestationNo);
+        return DataRegistry.addRevocation(attestationNo);
     }
 
 

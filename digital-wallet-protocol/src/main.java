@@ -3,12 +3,14 @@ import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
 import Helper.TrustedService;
 import DataObjects.VerifiablePresentation;
+import IHV.DataRegistry;
 import IHV.Holder;
 import IHV.Verifier;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 
-public class Main {
+public class main {
     
     public static void main(String[] args) {
         TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
@@ -23,9 +25,6 @@ public class Main {
 
         System.out.println("Testing authentication steps of hash list:");
         testVerificationHashList();
-
-
-
 
     }
 
@@ -70,7 +69,7 @@ public class Main {
     }
     private static void testVerificationMerkleTree()  {
 
-        var holder = new Holder();
+        var holder = new Holder("DK6789012");
         var verifier = new Verifier();
 
         // holder requesting proof from issuer
@@ -95,7 +94,7 @@ public class Main {
     private static void testRevocation()  {
 
         System.out.println("creating holder");
-        var holder = new Holder();
+        var holder = new Holder("DK6789012");
 
         System.out.println("creating verifier");
         var verifier = new Verifier();
@@ -110,7 +109,7 @@ public class Main {
             // holder presenting proof to verifier
             VerifiablePresentation presentation = holder.presentProof("CitizensCard", 2);
 
-            TrustedService.addRevocation(presentation.md.ID);
+            DataRegistry.addRevocation(presentation.md.ID);
 
 
             // verification: true / false

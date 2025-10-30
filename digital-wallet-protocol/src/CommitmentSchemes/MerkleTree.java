@@ -15,7 +15,7 @@ public class MerkleTree {
 
 
     public MerkleTree(String[] attributes) {
-        this.attributes = attributes;
+        this.attributes = attributes.clone();
         salts = new byte[attributes.length][20];
         createMerkleTree();
     }

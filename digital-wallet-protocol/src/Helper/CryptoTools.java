@@ -51,6 +51,7 @@ public class CryptoTools {
         return hashedMessage;
     }
 
+    // https://stackoverflow.com/questions/21018355/sha256withrsa-what-does-it-do-and-in-what-order
     // using SHA256 with RSA to sign a message
     public static byte[] signMessage(PrivateKey key, byte[] message) {
         try {

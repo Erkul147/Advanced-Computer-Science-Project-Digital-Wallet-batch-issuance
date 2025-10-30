@@ -12,9 +12,6 @@ public class TrustedService {
     // used to emulate a list of issuers
     public static Map<String, Issuer> issuers = new HashMap<>();
 
-
-    public static List<String> revocationList = new ArrayList<>();
-
     public static void generateIssuers() {
         for (int i = 0; i < 2; i++) { // random governmentbody
             var name = "GovernmentBody"+i;
@@ -27,20 +24,6 @@ public class TrustedService {
         return issuers.get(issuer).publicKey;
     }
 
-    public static boolean addRevocation(String attestationNo) {
-        if (revocationList.contains(attestationNo)) {
-            System.out.println("Revocation already exists");
-            return false;
-        }
-        System.out.println("Revocation added - "  + attestationNo);
-        revocationList.add(attestationNo);
-        return true;
-    }
 
-    public static boolean isProofRevoked(String attestationNo) {
-        var isRevoked = revocationList.contains(attestationNo);
-        if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
-        return isRevoked;
-    }
 
 }
