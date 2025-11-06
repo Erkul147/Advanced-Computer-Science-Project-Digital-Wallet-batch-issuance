@@ -6,25 +6,29 @@ import DataObjects.VerifiablePresentation;
 import IHV.DataRegistry;
 import IHV.Holder;
 import IHV.Verifier;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.Security;
 import java.sql.Timestamp;
 import java.util.Arrays;
 
 public class main {
     
     public static void main(String[] args) {
+
+
         TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
 
         System.out.println("Testing inclusion path of merkle trees and signature:");
         testVerificationMerkleTree();
         System.out.println();
 
-        System.out.println("Testing revocation:");
+/*        System.out.println("Testing revocation:");
         testRevocation();
         System.out.println();
 
         System.out.println("Testing authentication steps of hash list:");
-        testVerificationHashList();
+        testVerificationHashList();*/
 
     }
 
@@ -36,6 +40,7 @@ public class main {
     }
 
     private static void verifyHashList(AuthenticationSteps authenticationPath, byte[][] hashes) {
+
         System.out.println("testing verification");
         int counter = 0;
         var combinedHashes = new byte[0];

@@ -33,6 +33,15 @@ public class Holder {
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
     // Issuing document step 4.
     // TODO: implement a method for verifying the accuracy of the document.
+
+    /*
+    [Wallet] receives provider certificate
+       │
+       ├─ Verify signature with issuer public key
+       ├─ Validate issuer chain up to trusted root CA
+       ├─ Check validity period, revocation, extensions
+       └─ If all pass → Provider is trusted
+     */
     public boolean verifyDocument() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

@@ -38,7 +38,7 @@ public class Issuer {
         System.out.println(System.getProperty("user.dir"));
         try {
             // create buffered reader that reads the csv
-            BufferedReader br = new BufferedReader(new FileReader("src/attributes.csv"));
+            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
 
             // fake query: find id
             for (String line = br.readLine(); line != null; line = br.readLine() ) {

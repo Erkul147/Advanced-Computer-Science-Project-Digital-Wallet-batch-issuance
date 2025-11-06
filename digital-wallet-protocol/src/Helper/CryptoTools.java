@@ -1,16 +1,21 @@
 package Helper;
 import java.security.*;
+import java.security.spec.RSAKeyGenParameterSpec;
 
 public class CryptoTools {
     // secure random used to generate random bytes
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    // generator to generate keypairs (RSA for now)
+    // generator to generate keypairs
+    // https://doc.primekey.com/bouncycastle/how-to-guides-pki-at-the-edge/how-to-generate-key-pairs-and-certification-requests
     static KeyPairGenerator generator;
     static {
         try {
-            generator = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
+            generator = KeyPairGenerator.getInstance("RSA", "BC");
+            KeyPairGenerator  kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+
+            kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
     }
