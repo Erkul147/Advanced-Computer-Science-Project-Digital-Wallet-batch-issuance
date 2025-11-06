@@ -15,15 +15,20 @@ import java.util.Arrays;
 public class main {
     
     public static void main(String[] args) {
+        // using bouncy castle, and adding it as the provider
+        Security.addProvider(new BouncyCastleProvider());
 
 
-        TrustedService.generateIssuers(); // generates 10 fake government bodies "GovernmentBody0" to 9.
+        TrustedService.generateIssuers(); // generates
 
+
+
+/*
         System.out.println("Testing inclusion path of merkle trees and signature:");
         testVerificationMerkleTree();
         System.out.println();
 
-/*        System.out.println("Testing revocation:");
+       System.out.println("Testing revocation:");
         testRevocation();
         System.out.println();
 

@@ -29,6 +29,8 @@ public class Issuer {
 
     public Issuer(String name) {
         this.name = name;
+        TrustedService.registrar.IssueAccessCertificate(publicKey, "CitizenCard", name);
+
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
