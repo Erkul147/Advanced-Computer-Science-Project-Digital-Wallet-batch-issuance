@@ -1,18 +1,36 @@
 package IHV;
 
 import Helper.CryptoTools;
-import Helper.TrustedService;
 import DataObjects.VerifiablePresentation;
+import Helper.DataRegistry;
+
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class Verifier {
+    private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
+    private final PrivateKey privateKey = keyPair.getPrivate();
+    public final PublicKey publicKey = keyPair.getPublic();
 
     // RootsVerified acts as a database or a collection that store roots that are verified.
     // Will store every root from all verifiers. This is for unlinkability data.
+
+    public String name;
+    public X509Certificate accessCertificate;
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
+
+    public Verifier(String name) {
+        this.name = name;
+    }
+
+    public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
+        accessCertificate = TrustedService.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
+    }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println();

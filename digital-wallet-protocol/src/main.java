@@ -1,15 +1,13 @@
 import CommitmentSchemes.HashList;
 import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
-import Helper.TrustedService;
+import Helper.DataRegistry;
+import IHV.TrustedService;
 import DataObjects.VerifiablePresentation;
-import IHV.DataRegistry;
-import IHV.Holder;
-import IHV.Verifier;
+import IHV.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
-import java.sql.Timestamp;
 import java.util.Arrays;
 
 public class main {
@@ -18,12 +16,37 @@ public class main {
         // using bouncy castle, and adding it as the provider
         Security.addProvider(new BouncyCastleProvider());
 
+        // creating Registrar and Access Certificate Authority
+        TrustedService.registrar = new Registrar();
+        TrustedService.ACA = new AccessCertificateAuthority();
 
-        TrustedService.generateIssuers(); // generates
+        // generate new issuers and verifier
+        Issuer[] issuers = TrustedService.generateIssuers();
+        Verifier[] verifiers = new  Verifier[] {
+                new Verifier("Kiosk"),
+                new Verifier("Hospital")
+
+        };
+
+        // issuers must specify which attestation they want to create and what info it must hold
+        issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB", "Address", "Resident Country", "CPR"});
+        issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
+
+        // verifier must say which attestation they wish to request data from and what data
+        verifiers[0].requestAccessCertificate("AgeProof", new String[] {"DOB"});
+        verifiers[1].requestAccessCertificate("Citizen Card", new String[] {"Full Name", "DOB", "CPR"});
+
+
+        // give attestations to a holder
+        Holder holder = new Holder("DK12345");
+
+        holder.requestProof("AgeProof", issuers[1]);
+
+        System.out.println();
 
 
 
-/*
+        /*
         System.out.println("Testing inclusion path of merkle trees and signature:");
         testVerificationMerkleTree();
         System.out.println();
@@ -80,7 +103,7 @@ public class main {
     private static void testVerificationMerkleTree()  {
 
         var holder = new Holder("DK6789012");
-        var verifier = new Verifier();
+        var verifier = new Verifier("Kiosk");
 
         // holder requesting proof from issuer
         holder.requestProof("CitizensCard", TrustedService.issuers.get("GovernmentBody0"));
@@ -107,7 +130,7 @@ public class main {
         var holder = new Holder("DK6789012");
 
         System.out.println("creating verifier");
-        var verifier = new Verifier();
+        var verifier = new Verifier("Kiosk");
 
         System.out.println("request proofs from issuer");
         // holder requesting proof from issuer

@@ -4,7 +4,6 @@ import DataObjects.DisclosedAttribute;
 import DataObjects.VerifiableCredential;
 import DataObjects.VerifiablePresentation;
 import DataObjects.InclusionPath;
-import Helper.TrustedService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +25,10 @@ public class Holder {
     // request a specific proof from an issuer
     public void requestProof(String proofName, Issuer issuer) {
         System.out.println(proofName + " proof requested");
-        // add the proofs to a map of proofs
-        proofs.put(proofName, issuer.requestProof(proofName, ID));
+
+        // add the proofs to a map
+        ArrayList<VerifiableCredential> vc = issuer.requestProof(proofName, ID);
+        proofs.put(proofName, vc);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers

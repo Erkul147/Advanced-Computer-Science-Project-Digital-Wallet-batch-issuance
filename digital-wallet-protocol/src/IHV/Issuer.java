@@ -4,12 +4,12 @@ import CommitmentSchemes.MerkleTree;
 import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
-import Helper.TrustedService;
-import jdk.jshell.spi.ExecutionControl;
+import Helper.DataRegistry;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -21,16 +21,24 @@ public class Issuer {
 
     // name of issuer
     public String name;
+    public String attestationType;
+    public String[] attributesRequest;
 
     public final String country = "Denmark";
 
     // size of proof batches
     private final int BATCHSIZE = 30;
 
+    public X509Certificate accessCertificate;
+
     public Issuer(String name) {
         this.name = name;
-        TrustedService.registrar.IssueAccessCertificate(publicKey, "CitizenCard", name);
+    }
 
+    public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
+        this.attestationType = attestationType;
+        this.attributesRequest = attributesRequest;
+        accessCertificate = TrustedService.registrar.registerIssuer(publicKey, name, attestationType, attributesRequest);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
