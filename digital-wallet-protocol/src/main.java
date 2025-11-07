@@ -37,10 +37,14 @@ public class main {
         verifiers[1].requestAccessCertificate("Citizen Card", new String[] {"Full Name", "DOB", "CPR"});
 
 
-        // give attestations to a holder
+        // create holder and request a proof
         Holder holder = new Holder("DK12345");
-
         holder.requestProof("AgeProof", issuers[1]);
+
+        // present proof to a verifier
+        var VP = holder.presentProof("AgeProof", 0);
+
+        verifiers[1].verifyMerkleTree(VP);
 
         System.out.println();
 

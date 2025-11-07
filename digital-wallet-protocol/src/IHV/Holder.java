@@ -28,6 +28,7 @@ public class Holder {
 
         // add the proofs to a map
         ArrayList<VerifiableCredential> vc = issuer.requestProof(proofName, ID);
+
         proofs.put(proofName, vc);
     }
 
@@ -43,7 +44,8 @@ public class Holder {
        ├─ Check validity period, revocation, extensions
        └─ If all pass → Provider is trusted
      */
-    public boolean verifyDocument() {
+    public boolean verifyCertificate() {
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -78,7 +80,7 @@ public class Holder {
         InclusionPath path = tree.generateInclusionPath(index);
 
 
-        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, proof.metaData.issuerName);
+        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, proof.metaData.issuerName, proof.providerCertificate);
     }
 
 

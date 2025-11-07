@@ -88,7 +88,7 @@ public class Issuer {
             byte[] sign = CryptoTools.signMessage(privateKey, tree.root.hash);
 
             // add the proof the to list
-            verifiableCredentials.add(new VerifiableCredential(proofName, metaData, tree, sign));
+            verifiableCredentials.add(new VerifiableCredential(proofName, metaData, tree, sign, accessCertificate));
             System.out.println("Proof " + proofName + " " + (i+1) + " created. Root: " + Arrays.toString(verifiableCredentials.getLast().merkleTree.root.hash));
         }
         System.out.println(BATCHSIZE + " new proofs created.");

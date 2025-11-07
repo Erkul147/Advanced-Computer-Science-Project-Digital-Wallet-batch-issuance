@@ -32,9 +32,21 @@ public class Verifier {
         accessCertificate = TrustedService.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
     }
 
+    public boolean verifyCertificate(X509Certificate certificate) {
+        var certificateIssuer = certificate.getIssuerX500Principal();
+
+
+        return false;
+    }
+
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
-        System.out.println();
+        System.out.println("Verifying certificate");
+        verifyCertificate(presentation.providerCertificate);
+
+
         System.out.println("Verification");
+
+
 
         // check expiry date
         // presentation.md.expiryDate
@@ -69,9 +81,9 @@ public class Verifier {
         System.out.println("root's hash computed: " + Arrays.toString(hash));
         System.out.println("signed root: " + Arrays.toString(signedRoot));
 
-        // use computed root, the given signed root and the public key of a known issuer
+        // use computed root, the given signed root and the public key from the certificate provided which is a known issuer
         // to verify if the attribute and salt was a part of the root
-        PublicKey pk = TrustedService.getPublicKey(presentation.issuer);
+        PublicKey pk = presentation.providerCertificate.getPublicKey();
         var verified = CryptoTools.verifySignatureMessage(pk, hash, signedRoot);
 
         // UNLINKABILITY CHECK:
