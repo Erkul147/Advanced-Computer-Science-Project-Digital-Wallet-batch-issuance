@@ -1,5 +1,7 @@
 package IHV;
 
+import DataObjects.TrustedEntity;
+import DataObjects.TrustedList;
 import Helper.CryptoTools;
 import DataObjects.VerifiablePresentation;
 import Helper.DataRegistry;
@@ -11,6 +13,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class Verifier {
     private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
@@ -33,8 +36,26 @@ public class Verifier {
     }
 
     public boolean verifyCertificate(X509Certificate certificate) {
-        var certificateIssuer = certificate.getIssuerX500Principal();
+        List<TrustedList> trustedLists = TrustedListProvider.getTrustedEntries();
 
+        for (TrustedList tl : trustedLists) {
+            TrustedEntity entity = tl.getTrustedEntity();
+            X509Certificate trustedCert = entity.getX509CertificateInfo();
+
+            if (trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) && // Checks if both certificates match
+                    trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
+
+                if (entity.getStatus() != null && entity.getStatus()) { // Checks if both entities are active
+                    try {
+                        certificate.checkValidity(); // check expiration (By looking at NotBefore and NotAfter)
+                        return true; // certificate is trusted
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false; // certificate is not trusted
+                    }
+                }
+            }
+        }
 
         return false;
     }

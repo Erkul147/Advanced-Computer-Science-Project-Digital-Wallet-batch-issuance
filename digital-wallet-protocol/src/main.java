@@ -13,6 +13,9 @@ import java.util.Arrays;
 public class main {
     
     public static void main(String[] args) {
+        //testTrustedListProvider();
+
+
         // using bouncy castle, and adding it as the provider
         Security.addProvider(new BouncyCastleProvider());
 
@@ -63,6 +66,7 @@ public class main {
         testVerificationHashList();*/
 
     }
+
 
     private static void testVerificationHashList() {
         HashList hashList = new HashList(new String[]{"a", "b", "c", "d"});

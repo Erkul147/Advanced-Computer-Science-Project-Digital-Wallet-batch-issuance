@@ -1,5 +1,8 @@
 package IHV;
 
+import DataObjects.TrustedListEntities.ACAProvider;
+import DataObjects.TrustedListEntities.PIDProvider;
+import DataObjects.TrustedListEntities.QEAAProvider;
 import Helper.CryptoTools;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -18,6 +21,8 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import javax.security.auth.x500.X500Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.UUID;
 
 
 public class AccessCertificateAuthority {
@@ -40,8 +45,6 @@ public class AccessCertificateAuthority {
         X500Principal subject = new X500Principal(
                 "CN=" + entityName + ",OU=" + entityType + ",O=ProjectDemo"
         );
-
-
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
                 CACertificate.getSubjectX500Principal(),
@@ -73,6 +76,72 @@ public class AccessCertificateAuthority {
     }
 
     private void NotifyTrustedListProvider(String attestationType, String entityName, String entityType, X509Certificate cert) {
+        TrustedListProvider tlp = new TrustedListProvider();
+        Date date = new Date();
+
+
+        switch (entityType.toLowerCase()) {
+            case "issuer":
+                PIDProvider pid2 = new PIDProvider(
+                        UUID.randomUUID().toString(),
+                        entityName,
+                        "PID Provider",
+                        date.toString(),
+                        true,
+                        cert,
+                        "high"
+
+                );
+                tlp.addTrustedEntity(pid2);
+                break;
+
+            case "pidprovider":
+                PIDProvider pid = new PIDProvider(
+                        UUID.randomUUID().toString(),
+                        entityName,
+                        "PID Provider",
+                        date.toString(),
+                        true,
+                        cert,
+                        "high"
+
+                );
+                tlp.addTrustedEntity(pid);
+                break;
+
+            case "qeaa":
+                QEAAProvider qeaa = new QEAAProvider(
+                        UUID.randomUUID().toString(),
+                        entityName,
+                        "QEAA Provider",
+                        date.toString(),
+                        true,
+                        cert,
+                        attestationType
+                );
+                tlp.addTrustedEntity(qeaa);
+                break;
+
+            case "aca":
+                ACAProvider aca = new ACAProvider(
+                        UUID.randomUUID().toString(),
+                        entityName,
+                        "ACA Provider",
+                        date.toString(),
+                        true,
+                        cert,
+                        attestationType
+                );
+                tlp.addTrustedEntity(aca);
+                break;
+
+            default:
+                System.out.println("Unknown entity type: " + entityType);
+        }
+        tlp.exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
+
+
+
     }
 
 
