@@ -27,7 +27,7 @@ public class Issuer {
     public final String country = "Denmark";
 
     // size of proof batches
-    private final int BATCHSIZE = 30;
+    private final int BATCHSIZE = 31;
 
     public X509Certificate accessCertificate;
 
@@ -38,7 +38,7 @@ public class Issuer {
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
         this.attestationType = attestationType;
         this.attributesRequest = attributesRequest;
-        accessCertificate = TrustedService.registrar.registerIssuer(publicKey, name, attestationType, attributesRequest);
+        accessCertificate = TrustedListProvider.registrar.registerIssuer(publicKey, name, attestationType, attributesRequest);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers

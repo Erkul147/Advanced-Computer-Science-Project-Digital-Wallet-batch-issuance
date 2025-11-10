@@ -63,6 +63,9 @@ public class Registrar {
         } catch (CertificateException | OperatorCreationException e) {
             throw new RuntimeException(e);
         }
+        KeyPair ACAKeyPair = CryptoTools.generateAsymmetricKeys();
+        X509Certificate CACertificate = createCACertificate(certificate, privateKey, "SHA256withRSA", ACAKeyPair.getPublic(), 0);
+        TrustedListProvider.ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
     }
 
     /*
@@ -74,7 +77,7 @@ public class Registrar {
     public X509Certificate registerVerifier(PublicKey publicKey, String verifierName, String attestationType, String[] attributesRequest) {
 
         // check if their reason is good
-        return ACA.createEndEntity("SHA256withRSA", publicKey, verifierName, "Verifier", attestationType, attributesRequest);
+        return ACA.createEndEntityCertificate("SHA256withRSA", publicKey, verifierName, "Verifier", attestationType, attributesRequest);
     }
 
 
@@ -90,11 +93,7 @@ public class Registrar {
         // if everything works, create and end entity certificate and sign with the CA key.
         // this will link the issuers public key with the certificate
 
-        return ACA.createEndEntity("SHA256withRSA", publicKey, issuerName, "Issuer", attestationType, attributesRequest);
-    }
-
-    public X509Certificate requestCACertificate(PublicKey publicKey) {
-        return createCACertificate(certificate, privateKey, "SHA256withRSA", publicKey, 0);
+        return ACA.createEndEntityCertificate("SHA256withRSA", publicKey, issuerName, "Issuer", attestationType, attributesRequest);
     }
 
     /*

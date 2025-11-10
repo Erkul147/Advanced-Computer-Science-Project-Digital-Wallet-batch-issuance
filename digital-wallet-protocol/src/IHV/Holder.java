@@ -1,10 +1,11 @@
 package IHV;
 
-import DataObjects.DisclosedAttribute;
-import DataObjects.VerifiableCredential;
-import DataObjects.VerifiablePresentation;
-import DataObjects.InclusionPath;
+import CommitmentSchemes.Node;
+import DataObjects.*;
+import Helper.CryptoTools;
 
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,9 +45,20 @@ public class Holder {
        ├─ Check validity period, revocation, extensions
        └─ If all pass → Provider is trusted
      */
-    public boolean verifyCertificate() {
+    public boolean verifyIssuer(X509Certificate certificate, VerifiablePresentation vp) {
+        String name = certificate.getSubjectX500Principal().getName();
+        TrustedEntity trustedEntity = TrustedListProvider.getTrustedtrustedEntity(name);
+        PublicKey certPublicKey = certificate.getPublicKey();
+        PublicKey entityPublicKey = trustedEntity.getX509CertificateInfo().getPublicKey();
 
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!entityPublicKey.toString().equals(certPublicKey.toString())) {
+            return false;
+        }
+
+        byte[] signedRoot = vp.signedRoot;
+        byte[] root = vp.root.hash;
+
+        return CryptoTools.verifySignatureMessage(entityPublicKey, root, signedRoot);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
@@ -80,7 +92,7 @@ public class Holder {
         InclusionPath path = tree.generateInclusionPath(index);
 
 
-        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.signedRoot, proof.metaData.issuerName, proof.providerCertificate);
+        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.merkleTree.root, proof.signedRoot, proof.metaData.issuerName, proof.providerCertificate);
     }
 
 

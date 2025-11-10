@@ -1,7 +1,6 @@
 package IHV;
 
 import DataObjects.TrustedEntity;
-import DataObjects.TrustedList;
 import Helper.CryptoTools;
 import DataObjects.VerifiablePresentation;
 import Helper.DataRegistry;
@@ -14,6 +13,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Verifier {
     private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
@@ -32,32 +32,39 @@ public class Verifier {
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
-        accessCertificate = TrustedService.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
+        accessCertificate = TrustedListProvider.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
     }
 
     public boolean verifyCertificate(X509Certificate certificate) {
-        List<TrustedList> trustedLists = TrustedListProvider.getTrustedEntries();
+        TrustedEntity trustedEntity = TrustedListProvider.getTrustedtrustedEntity(certificate.getSerialNumber().toString());
 
-        for (TrustedList tl : trustedLists) {
-            TrustedEntity entity = tl.getTrustedEntity();
-            X509Certificate trustedCert = entity.getX509CertificateInfo();
+        // Check if entity exists
+        if (trustedEntity == null) {
+            System.out.println("Certificate not found in trusted entities.");
+            return false;
+        }
 
-            if (trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) && // Checks if both certificates match
-                    trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
+        X509Certificate trustedCert = trustedEntity.getX509CertificateInfo();
 
-                if (entity.getStatus() != null && entity.getStatus()) { // Checks if both entities are active
-                    try {
-                        certificate.checkValidity(); // check expiration (By looking at NotBefore and NotAfter)
-                        return true; // certificate is trusted
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return false; // certificate is not trusted
-                    }
+        if (trustedCert != null &&
+                trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) &&
+                trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
+
+            if (trustedEntity.getStatus() != null && trustedEntity.getStatus()) {
+                try {
+                    certificate.checkValidity();
+                    return true; // certificate is trusted and valid
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
                 }
+            } else  {
+                System.out.print("Trusted Certificate is not valid");
+                return false;
             }
         }
 
-        return false;
+        return false; // Not valid
     }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {

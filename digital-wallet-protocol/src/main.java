@@ -2,7 +2,6 @@ import CommitmentSchemes.HashList;
 import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
 import Helper.DataRegistry;
-import IHV.TrustedService;
 import DataObjects.VerifiablePresentation;
 import IHV.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -13,31 +12,30 @@ import java.util.Arrays;
 public class main {
     
     public static void main(String[] args) {
-        //testTrustedListProvider();
-
 
         // using bouncy castle, and adding it as the provider
         Security.addProvider(new BouncyCastleProvider());
 
         // creating Registrar and Access Certificate Authority
-        TrustedService.registrar = new Registrar();
-        TrustedService.ACA = new AccessCertificateAuthority();
+        TrustedListProvider.registrar = new Registrar();
 
         // generate new issuers and verifier
-        Issuer[] issuers = TrustedService.generateIssuers();
+        Issuer[] issuers = new Issuer[] {
+                new Issuer("GovernmentBody0"),
+                new Issuer("GovernmentBody1")
+        };
         Verifier[] verifiers = new  Verifier[] {
                 new Verifier("Kiosk"),
                 new Verifier("Hospital")
-
         };
 
         // issuers must specify which attestation they want to create and what info it must hold
-        issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB", "Address", "Resident Country", "CPR"});
+        issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB", "Address", "Resident Country"});
         issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
         // verifier must say which attestation they wish to request data from and what data
         verifiers[0].requestAccessCertificate("AgeProof", new String[] {"DOB"});
-        verifiers[1].requestAccessCertificate("Citizen Card", new String[] {"Full Name", "DOB", "CPR"});
+        verifiers[1].requestAccessCertificate("Citizen Card", new String[] {"ID", "Full Name", "DOB"});
 
 
         // create holder and request a proof

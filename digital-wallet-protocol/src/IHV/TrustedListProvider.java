@@ -15,30 +15,62 @@ import org.json.*;
 
 public class TrustedListProvider {
 
-    private static List<TrustedList> trustedEntries = new ArrayList<>();
-    private static TrustedList trustedList;
+    private static HashMap<String, TrustedEntity> trustedEntities = new HashMap<>();
+    public static Registrar  registrar;
+    public static AccessCertificateAuthority ACA;
 
-    public void addTrustedEntity(TrustedEntity entity) {
-        if (entity == null || entity.getId() == null) {
-            throw new IllegalArgumentException("Entity or Entity ID cannot be null");
+    public static void addTrustedEntity(String attestationType, String entityName, String entityType, X509Certificate cert) {
+        String ID = cert.getSerialNumber().toString();
+
+        switch (entityType.toLowerCase()) {
+            case "issuer":
+            case "pidprovider":
+                PIDProvider pid = new PIDProvider(
+                        ID, entityName, "PID Provider", true, cert, "high"
+                );
+                trustedEntities.put(ID, pid);
+                break;
+
+            case "qeaa":
+                QEAAProvider qeaa = new QEAAProvider(
+                        ID, entityName, "QEAA Provider", true, cert, attestationType
+                );
+                trustedEntities.put(ID, qeaa);
+                break;
+
+            case "aca":
+                ACAProvider aca = new ACAProvider(
+                        ID, entityName, "ACA Provider",
+                        true, cert, attestationType
+                );
+                trustedEntities.put(ID, aca);
+                break;
+
+            default:
+                System.out.println("Unknown entity type: " + entityType);
         }
 
-        String listID = UUID.randomUUID().toString();
-        trustedList = new TrustedList(listID, entity.getentityType(), entity);
-        trustedEntries.add(trustedList);
+        exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
 
-    public void exportTrustedListToJson(String filename) {
+
+    public static TrustedEntity getTrustedtrustedEntity(String ID) {
+        return trustedEntities.get(ID);
+    }
+
+    public static void getCertificateOfAnEntity(String ID) {
+
+
+    }
+
+    public static void exportTrustedListToJson(String filename) {
         JSONArray jsonArray = new JSONArray();
 
-        for (TrustedList entry : trustedEntries) {
-            TrustedEntity entity = entry.getTrustedEntity();
-
+        for (TrustedEntity entity : trustedEntities.values()) {
             JSONObject trustedEntityJson = new JSONObject();
-            trustedEntityJson.put("id", entity.getId());
+            trustedEntityJson.put("id", entity.getID());
             trustedEntityJson.put("name", entity.getName());
             trustedEntityJson.put("entityType", entity.getentityType());
-            trustedEntityJson.put("issuedDate", entity.getissuedDate());
             trustedEntityJson.put("status", entity.getStatus());
 
             if (entity.getX509CertificateInfo() != null) {
@@ -54,7 +86,6 @@ public class TrustedListProvider {
                 certJson.put("publicKeyFormat", cert.getPublicKey().getFormat());
                 certJson.put("publicKeyAlgorithm", cert.getPublicKey().getAlgorithm());
                 certJson.put("publicKey", cert.getPublicKey().toString());
-
                 trustedEntityJson.put("x509certificate", certJson);
             } else {
                 trustedEntityJson.put("x509certificate", JSONObject.NULL);
@@ -69,12 +100,7 @@ public class TrustedListProvider {
                 trustedEntityJson.put("attestationType", aca.getAttestationType());
             }
 
-            JSONObject obj = new JSONObject();
-            obj.put("ID", entry.getID());
-            obj.put("entityType", entry.getEntityType());
-            obj.put("trustedEntity", trustedEntityJson);
-
-            jsonArray.put(obj);
+            jsonArray.put(trustedEntityJson);
         }
 
         try (FileWriter filer = new FileWriter(filename)) {
@@ -84,13 +110,4 @@ public class TrustedListProvider {
             e.printStackTrace();
         }
     }
-
-    public static List<TrustedList> getTrustedEntries() {
-        return trustedEntries;
-    }
-
-    public static TrustedList getTrustedList() {
-        return trustedList;
-    }
-
 }
