@@ -54,6 +54,7 @@ public class Verifier {
             trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
             try {
                 // built in method to check if certificate is valid
+                System.out.println("chcking validity, key, serial number and name is correct");
                 certificate.checkValidity();
                 return true; // certificate is trusted and valid
             } catch (Exception e) {
@@ -61,7 +62,7 @@ public class Verifier {
                 return false;
             }
         }
-
+        System.out.println("validity failed");
         return false; // Not valid
     }
 
@@ -118,7 +119,8 @@ public class Verifier {
 
 
             // if this hash does not equal the first, the root is not the same, and we cannot verify the tree
-            if (hash != hashesComputed.getFirst()) return false;
+            if (!Arrays.toString(hash).equals(Arrays.toString(hashesComputed.getFirst()))) return false;
+
 
             finalHash = hash;
         }
@@ -143,7 +145,7 @@ public class Verifier {
             rootsVerified.put(finalHash, count);
         }
 
-        if (verified) System.out.println("proof has been verified");
+        if (verified) System.out.println("proof has been verified :)");
 
         return verified;
     }

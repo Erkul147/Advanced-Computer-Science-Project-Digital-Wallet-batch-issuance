@@ -1,36 +1,36 @@
 [
     {
         "x509certificate": {
-            "serialNumber": "1762867909493",
+            "serialNumber": "1762879259167",
             "subject": "CN=GovernmentBody0,OU=Issuer,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "CitizenCard",
-            "validFrom": "Tue Nov 11 14:31:50 CET 2025",
-            "publicKey": "RSA Public Key [e8:a6:76:5a:47:1a:a4:2c:ab:62:ca:a0:dc:57:c4:49:47:cd:8b:67],[56:66:d1:a4]\r\n        modulus: cfe47a9e9bed0485bc25c5b722da15d6e9005933e80f75baa9f670736f0404305a2a026ae2fa61b86ca5ca3f05b3ec1a876087637a1d894866069854420289a21dcb974d29a848904d680179fd952fedb9b269e226119b89c82b679ad24b13af19c4adb2d53cb1841bb23530442fa297a0968730b4d3898bd1ac73871204698db8c0201c35967578c82c32dd948e6e1b5d63d127ae4bfe36fab4fefef0c5b86745ffc450a1d0fa1698eebbbac400aef900e3140bbfd8a1acc2dba08a2dc98d72a5d8887fc4c2c08e6c6382ac9db6d346ac46a27b767b89522a3f2548d1787656c0ed5b0b0213d67d7d688f706a33594eccbfd5b0f6628d5b2bbeb4acd942f3bd\r\npublic exponent: 10001\r\n",
+            "validFrom": "Tue Nov 11 17:41:00 CET 2025",
+            "publicKey": "RSA Public Key [00:da:c1:ff:c5:2b:af:bf:ec:72:c9:81:3d:68:d2:78:d8:9b:d1:7e],[56:66:d1:a4]\r\n        modulus: cefe71fba3b7db8c0fef3447da0c59789ba095a4af155078af7b73f78fc6b10213bdfd2e559345efb87dca4ac07ac32add7ff61cf1262ae964f7b9bbfd29ce0527fb3ce748485e56089c22e4b1590315d8df955423fad9ed4f25e2ecf585eee4ac8aa7b288732c6a9646014fc6c979321a99333c9627ccd7680ac2700b2d1c6d9e922ab1530f78c6df23e2a58421771b6a015f1a50ab2b88389bfb60e271eec2b41c34ae61291ba14f4a35ba60b7e68cb1cb4c070d9294e3bba8006a32c9a9a59f9dc114aaafe94253acd03c770570bbeed1a6a5d3f91dc887de0a404857467d0176d8703694e1561e542c90ceaf81db8ede225c19ed60cf47c40a003287b901\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority",
-            "validTo": "Wed Nov 11 14:31:50 CET 2026",
+            "validTo": "Wed Nov 11 17:41:00 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "GovernmentBody0",
-        "id": "1762867909493"
+        "id": "1762879259167"
     },
     {
         "x509certificate": {
-            "serialNumber": "1762867909494",
+            "serialNumber": "1762879259168",
             "subject": "CN=GovernmentBody1,OU=Issuer,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "AgeProof",
-            "validFrom": "Tue Nov 11 14:31:50 CET 2025",
-            "publicKey": "RSA Public Key [2b:d5:6b:b5:21:5f:ae:cf:90:08:96:98:91:f1:f1:17:75:43:f6:93],[56:66:d1:a4]\r\n        modulus: c2bc93737d3b0ff6ea75b3aa6b662cd6d5fe07b4285a1a02cb3ca4b014c034506f6f91aa26b1ea70280efdeb8104c5b94695bba535b3ab0144456b025fa64f600cd8b9ca0ada74f6d4bca196f5c98e13014e0d1f1d578d26f48ee358490768b9642bd8a297c38de643af1f5e7bdf718b9ce629670332698776c498bb5089b1cd76eb49d24c719393d734e0fd1645dfed8b85e043cee785405e25492a28a6e2b4544f6ea709fc40f06c73104072306346717aaa67344798643ba014573eed331958235e7d56e1af15564db67dfedfa85c343a664ef316328407e54053fda0cd588c1b91444f436f87f3a3470678a9fd1a255da9ad8c2cfff1da09faffb7237635\r\npublic exponent: 10001\r\n",
+            "validFrom": "Tue Nov 11 17:41:00 CET 2025",
+            "publicKey": "RSA Public Key [96:c7:6f:1c:c9:59:8b:52:5f:ea:8c:d8:37:b2:cb:09:4c:b4:f9:32],[56:66:d1:a4]\r\n        modulus: cf14a43e23fbb631d3c961b4e3446f68f93d58c7da5b816a6c23779d0bdd35a1c05297a43e75bfa8356111964a554841a58975ae8d5c7ab277bac3803569efc9d1f3e4ef1abdf4d8eae6a9ad3a9079d9cbb98469a596e3175a3ae9a666ddc2f77495bc0accec3461fa166d84c355a88dded075ef99882677f9d6a824405301bff00dd60e0cd04b56070c7711cfcd731a31b72fae47d70d5f53a6b382ba4787960ee5ed1d486dfc918885805226ca734be756f21116c4ba8c611a7c4f41d84453faa3acfc3de3eb8fd0c3bc269bde7ceae3e81adc4418a89fb12b8e0e05561d2b6d310898023b424e2182bb3da079bc34ffff388ab9b8b4d497d2ef4e6f01941d\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority",
-            "validTo": "Wed Nov 11 14:31:50 CET 2026",
+            "validTo": "Wed Nov 11 17:41:00 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "GovernmentBody1",
-        "id": "1762867909494"
+        "id": "1762879259168"
     }
 ]

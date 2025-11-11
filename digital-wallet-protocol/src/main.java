@@ -1,6 +1,5 @@
 import CommitmentSchemes.HashList;
 import DataObjects.AuthenticationSteps;
-import DataObjects.TrustedIssuerData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Helper.DataRegistry;
@@ -27,8 +26,8 @@ public class main {
                 new Issuer("GovernmentBody1")
         };
         Verifier[] verifiers = new  Verifier[] {
-                new Verifier("Kiosk"),
-                new Verifier("Hospital")
+                new Verifier("Hospital"),
+                new Verifier("Kiosk")
         };
 
         // issuers must specify which attestation they want to create and what info it must hold
@@ -36,18 +35,19 @@ public class main {
         issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
         // verifier must say which attestation they wish to request data from and what data
-        verifiers[0].requestAccessCertificate("AgeProof", new String[] {"DOB"});
-        verifiers[1].requestAccessCertificate("Citizen Card", new String[] {"ID", "Full Name", "DOB"});
+        verifiers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB"});
+        verifiers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
 
         // create holder and request a proof
         Holder holder = new Holder("DK12345");
-        holder.requestProof("Citizen Card", issuers[1]);
+        holder.requestProof("CitizenCard", issuers[0]);
 
         // present proof to a verifier
-        VerifiableCredential proof = holder.getProof("Citizen Card");
+        VerifiableCredential proof = holder.getProof("CitizenCard");
         var VP = holder.presentProof(proof, new int[] {0,1});
 
+        System.out.println("verify?");
         verifiers[1].verifyMerkleTree(VP);
 
         System.out.println();
