@@ -1,0 +1,36 @@
+[
+    {
+        "x509certificate": {
+            "serialNumber": "1762867880763",
+            "subject": "CN=GovernmentBody0,OU=Issuer,O=ProjectDemo",
+            "publicKeyAlgorithm": "RSA",
+            "publicKeyFormat": "X.509",
+            "attestationType": "CitizenCard",
+            "validFrom": "Tue Nov 11 14:31:22 CET 2025",
+            "publicKey": "RSA Public Key [61:dd:1a:55:55:82:3f:48:8a:09:06:33:dd:66:47:5a:21:25:a4:f7],[56:66:d1:a4]\r\n        modulus: 984184ce72b36d1156c00401e9c5d4e676e176982489b9a7e506904f1750089677cdc03a3a3c71db64ecba6ac8a637d09cd7f1bd20a6e3be298ffb99fb1f5a87cf864c3b840b00371de77373ad9295ab7add77cff0d2ad38541dc263dd4c06e063a6fbc0280f3b566d68a27d2a1ceba0dfe36ff63843f6bdbce443d092fe81c3874b9f5be723f57d7665b362daac10b64df65cfe2ffbfb7b599b3b4c5e9a5f1c37c4ec152e272d71779f00e677023b443131cf7162f6d2c45bd1114fd09a0c6b62eada93d9e26f5ef9d67cb1ec6ee814c38487e3b6ea9ef2c89a745b7548d16fd2a32e798aceb7f8e76f20856add42e96f236db68143d49a7454d502ab00aabd\r\npublic exponent: 10001\r\n",
+            "version": 3,
+            "issuer": "CN=Certificate Authority",
+            "validTo": "Wed Nov 11 14:31:22 CET 2026",
+            "algorithm": "SHA256WITHRSA"
+        },
+        "name": "GovernmentBody0",
+        "id": "1762867880763"
+    },
+    {
+        "x509certificate": {
+            "serialNumber": "1762867880764",
+            "subject": "CN=GovernmentBody1,OU=Issuer,O=ProjectDemo",
+            "publicKeyAlgorithm": "RSA",
+            "publicKeyFormat": "X.509",
+            "attestationType": "AgeProof",
+            "validFrom": "Tue Nov 11 14:31:22 CET 2025",
+            "publicKey": "RSA Public Key [01:f6:73:bd:73:ad:1c:51:17:c8:48:65:0b:62:62:ff:1e:e5:56:81],[56:66:d1:a4]\r\n        modulus: df16d47fed27a89d3f1fba41f90d5b91073dc750e2ce9cf8bf87a91fd0b9638c6cd47fbd4a43c3c683aef42896fb4f1519514078a8e716aa2b51dace2d535475e8853992601fd24697416c46ca4d857031252b577c9c1ecab2708b944579c8ecd012e8b31d72173cb09362c34c087bbacc2d75270256607917fe34cfbf38f9804cb565a30b9af131510f5d07887755c3f94050059419fa94fc55230e76c295085bae3c474d5833e9221f2d9f074346bdec428381961bbc5c93e11fef2a08e2956c932fd0da1ce29ab0165c1e74b120d291b42ef55b53c8e1a38adfa0333761a4c9bd19b1b5b87b4a2e9cf6f5955dfb4465cc6bb6b5e9461934fb9a49ce9b2409\r\npublic exponent: 10001\r\n",
+            "version": 3,
+            "issuer": "CN=Certificate Authority",
+            "validTo": "Wed Nov 11 14:31:22 CET 2026",
+            "algorithm": "SHA256WITHRSA"
+        },
+        "name": "GovernmentBody1",
+        "id": "1762867880764"
+    }
+]

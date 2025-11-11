@@ -1,19 +1,21 @@
 package IHV;
 
-import DataObjects.TrustedEntity;
+import DataObjects.DisclosedAttribute;
+import DataObjects.InclusionPath;
+import DataObjects.TrustedIssuerData;
 import Helper.CryptoTools;
 import DataObjects.VerifiablePresentation;
 import Helper.DataRegistry;
+import Helper.Helper;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Verifier {
     private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
@@ -35,31 +37,27 @@ public class Verifier {
         accessCertificate = TrustedListProvider.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
     }
 
-    public boolean verifyCertificate(X509Certificate certificate) {
-        TrustedEntity trustedEntity = TrustedListProvider.getTrustedtrustedEntity(certificate.getSerialNumber().toString());
+    public boolean verifyCertificate(X509Certificate certificate, String attestationType) {
+        TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(certificate));
 
         // Check if entity exists
-        if (trustedEntity == null) {
+        if (trustedIssuer == null) {
             System.out.println("Certificate not found in trusted entities.");
             return false;
         }
 
-        X509Certificate trustedCert = trustedEntity.getX509CertificateInfo();
+        X509Certificate trustedCert = trustedIssuer.certificateMap().get(attestationType);
 
         if (trustedCert != null &&
-                trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) &&
-                trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
-
-            if (trustedEntity.getStatus() != null && trustedEntity.getStatus()) {
-                try {
-                    certificate.checkValidity();
-                    return true; // certificate is trusted and valid
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            } else  {
-                System.out.print("Trusted Certificate is not valid");
+            trustedCert.getPublicKey().equals(certificate.getPublicKey()) &&
+            trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) &&
+            trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
+            try {
+                // built in method to check if certificate is valid
+                certificate.checkValidity();
+                return true; // certificate is trusted and valid
+            } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }
         }
@@ -69,13 +67,13 @@ public class Verifier {
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println("Verifying certificate");
-        verifyCertificate(presentation.providerCertificate);
+        if (!verifyCertificate(presentation.providerCertificate, presentation.md.attestationType)) {
+            System.out.println("Invalid attestation type");
+            return false;
+        }
 
 
-        System.out.println("Verification");
-
-
-
+        System.out.println("Verifying merkle tree signature");
         // check expiry date
         // presentation.md.expiryDate
 
@@ -84,46 +82,68 @@ public class Verifier {
 
         if (DataRegistry.isProofRevoked(presentation.md.ID)) return false;
 
-        // information from the presentation
-        var disclosedAttribute = presentation.disclosedAttribute;
-        var path = presentation.path;
-        var signedRoot = presentation.signedRoot;
+        // verify all disclosed attributes
+        DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes;
+        byte[] signedRoot = presentation.signedRoot;
+
+        ArrayList<byte[]> hashesComputed = new ArrayList<>();
+
+        byte[] finalHash = null;
+
+        if (disclosedAttributes == null || disclosedAttributes.length == 0) return false;
+        for (int i = 0; i < disclosedAttributes.length; i++) {
+
+            DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes[i];
+            InclusionPath path = disclosedAttribute.inclusionPath;
 
 
-        System.out.println("disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
-        System.out.println("disclosed salt: " + Arrays.toString(disclosedAttribute.salt));
+            System.out.println("disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
+            System.out.println("disclosed salt: " + Arrays.toString(disclosedAttribute.salt));
 
 
-        // hashing disclosed attribute with salt
-        var combinedAttributes = CryptoTools.combineByteArrays(disclosedAttribute.value, disclosedAttribute.salt);
-        var hash = CryptoTools.hashSHA256(combinedAttributes);
+            // hashing disclosed attribute with salt
+            byte[] combinedAttributes = CryptoTools.combineByteArrays(disclosedAttribute.value, disclosedAttribute.salt);
+            byte[] hash = CryptoTools.hashSHA256(combinedAttributes);
 
-        // will loop over the list of hashes. each loop will compute a new hash that is used to compute the next node
-        for (int i = 0; i < path.hashes.size(); i++) {
-            System.out.println("Computed hash: " + Arrays.toString(hash));
-            // if sibling is left then H(sibling, current node) else H(current node, sibling)
-            hash = (path.isSiblingLeft.get(i)) ?
-                    CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(i), hash)) :
-                    CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(i)));
+            // will loop over the list of hashes. each loop will compute a new hash that is used to compute the next node
+            for (int j = 0; j < path.hashes.size(); j++) {
+                System.out.println("Computed hash: " + Arrays.toString(hash));
+                // if sibling is left then H(sibling, current node) else H(current node, sibling)
+                hash = (path.isSiblingLeft.get(j)) ?
+                        CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(j), hash)) :
+                        CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(j)));
+            }
+            System.out.println("root's hash computed: " + Arrays.toString(hash));
+            hashesComputed.add(hash);
+
+
+            // if this hash does not equal the first, the root is not the same, and we cannot verify the tree
+            if (hash != hashesComputed.getFirst()) return false;
+
+            finalHash = hash;
         }
-        System.out.println("root's hash computed: " + Arrays.toString(hash));
+
+
+
         System.out.println("signed root: " + Arrays.toString(signedRoot));
 
         // use computed root, the given signed root and the public key from the certificate provided which is a known issuer
         // to verify if the attribute and salt was a part of the root
-        PublicKey pk = presentation.providerCertificate.getPublicKey();
-        var verified = CryptoTools.verifySignatureMessage(pk, hash, signedRoot);
+        PublicKey publicKey = presentation.providerCertificate.getPublicKey();
+        boolean verified = CryptoTools.verifySignatureMessage(publicKey, finalHash, signedRoot);
 
         // UNLINKABILITY CHECK:
         // if the root is verified then check if the root has been seen before,
         // if not add it to the "database",
         // else increment the counter. the counter shows the amount of times a root has been seen
         if (verified) {
-            var count = rootsVerified.get(hash);
+            Integer count = rootsVerified.get(finalHash);
             if (count != null) count++;
             else count = 0;
-            rootsVerified.put(hash, count);
+            rootsVerified.put(finalHash, count);
         }
+
+        if (verified) System.out.println("proof has been verified");
 
         return verified;
     }

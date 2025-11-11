@@ -38,7 +38,7 @@ public class Issuer {
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
         this.attestationType = attestationType;
         this.attributesRequest = attributesRequest;
-        accessCertificate = TrustedListProvider.registrar.registerIssuer(publicKey, name, attestationType, attributesRequest);
+        accessCertificate = TrustedListProvider.registrar.registerIssuer(this, attestationType, attributesRequest);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
@@ -65,7 +65,7 @@ public class Issuer {
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
     // Issuing document step 3.
-    private ArrayList<VerifiableCredential> sendProofs(String proofName, String ID) {
+    private ArrayList<VerifiableCredential> sendProofs(String attestationType, String ID) {
         // list to store proofs (use almost like a stack)
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
 
@@ -73,13 +73,13 @@ public class Issuer {
         String[] attributes = getPID(ID);
         if (attributes == null) return null;
         System.out.println("creating merkle tree proofs");
-        String[] type = new String[]{"VerifiableCredential", proofName};
+        String[] type = new String[]{"VerifiableCredential", attestationType};
 
         // create all proofs
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
-            MetaData metaData = new MetaData(name, country, type.clone(), "1-1-2030", "RSA");
+            MetaData metaData = new MetaData(name, country, type.clone(), "1-1-2030", attestationType, "RSA");
 
             // create the payload
             MerkleTree tree = new MerkleTree(attributes);
@@ -88,8 +88,8 @@ public class Issuer {
             byte[] sign = CryptoTools.signMessage(privateKey, tree.root.hash);
 
             // add the proof the to list
-            verifiableCredentials.add(new VerifiableCredential(proofName, metaData, tree, sign, accessCertificate));
-            System.out.println("Proof " + proofName + " " + (i+1) + " created. Root: " + Arrays.toString(verifiableCredentials.getLast().merkleTree.root.hash));
+            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, sign, this, accessCertificate));
+            System.out.println("Proof " + attestationType + " " + (i+1) + " created. Root: " + Arrays.toString(verifiableCredentials.getLast().merkleTree().root.hash));
         }
         System.out.println(BATCHSIZE + " new proofs created.");
 

@@ -76,7 +76,8 @@ public class CryptoTools {
             var sig = Signature.getInstance("SHA256withRSA");
             sig.initVerify(key);
             sig.update(message);
-            return sig.verify(signedMessage);
+            var verification =  sig.verify(signedMessage);
+            return verification;
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {e.printStackTrace();}
 
         return false;

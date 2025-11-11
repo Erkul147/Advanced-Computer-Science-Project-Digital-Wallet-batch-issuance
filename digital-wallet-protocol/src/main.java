@@ -1,5 +1,7 @@
 import CommitmentSchemes.HashList;
 import DataObjects.AuthenticationSteps;
+import DataObjects.TrustedIssuerData;
+import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Helper.DataRegistry;
 import DataObjects.VerifiablePresentation;
@@ -40,10 +42,11 @@ public class main {
 
         // create holder and request a proof
         Holder holder = new Holder("DK12345");
-        holder.requestProof("AgeProof", issuers[1]);
+        holder.requestProof("Citizen Card", issuers[1]);
 
         // present proof to a verifier
-        var VP = holder.presentProof("AgeProof", 0);
+        VerifiableCredential proof = holder.getProof("Citizen Card");
+        var VP = holder.presentProof(proof, new int[] {0,1});
 
         verifiers[1].verifyMerkleTree(VP);
 
@@ -112,12 +115,14 @@ public class main {
         var verifier = new Verifier("Kiosk");
 
         // holder requesting proof from issuer
-        holder.requestProof("CitizensCard", TrustedService.issuers.get("GovernmentBody0"));
+        holder.requestProof("CitizensCard", TrustedListProvider.getTrustedIssuer("GovernmentBody0").issuer());
 
         for (int i = 0; i < 2; i++) {
             System.out.println();
             // holder presenting proof to verifier
-            VerifiablePresentation presentation = holder.presentProof("CitizensCard", 2);
+
+            VerifiableCredential proof = holder.getProof("CitizensCard");
+            VerifiablePresentation presentation = holder.presentProof(proof, new int[] {2});
 
             // verification: true / false
             boolean verification = verifier.verifyMerkleTree(presentation);
@@ -140,13 +145,14 @@ public class main {
 
         System.out.println("request proofs from issuer");
         // holder requesting proof from issuer
-        holder.requestProof("CitizensCard", TrustedService.issuers.get("GovernmentBody0"));
+        holder.requestProof("CitizensCard", TrustedListProvider.getTrustedIssuer("GovernmentBody0").issuer());
 
 
         for (int i = 0; i < 2; i++) {
             System.out.println();
             // holder presenting proof to verifier
-            VerifiablePresentation presentation = holder.presentProof("CitizensCard", 2);
+            VerifiableCredential proof = holder.getProof("CitizensCard");
+            VerifiablePresentation presentation = holder.presentProof(proof, new int[] {2});
 
             DataRegistry.addRevocation(presentation.md.ID);
 

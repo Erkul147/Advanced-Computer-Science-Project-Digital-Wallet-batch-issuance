@@ -5,19 +5,21 @@ import java.sql.Timestamp;;
 
 public class MetaData {
     public final String ID = UUID.randomUUID().toString();
-    public String issuerName;
-    public String issuingCountry;
-    public String[] type;
-    public String expiryDate;
-    public Timestamp timestamp;
-    public String signatureAlgorithm;
+    public final String issuerName;
+    public final String issuingCountry;
+    public final String[] type;
+    public final String expiryDate;
+    public final String attestationType;
+    public final Timestamp timestamp;
+    public final String signatureAlgorithm;
 
-    public MetaData(String issuerName, String issuingCountry, String[] type, String expiryDate, String signatureAlgorithm) {
+    public MetaData(String issuerName, String issuingCountry, String[] type, String expiryDate, String attestationType, String signatureAlgorithm) {
         this.issuerName = issuerName;
         this.issuingCountry = issuingCountry;
         this.type = type;
         this.expiryDate = expiryDate;
-        timestamp = new Timestamp(System.currentTimeMillis());
+        this.attestationType = attestationType;
+        this.timestamp = new Timestamp(System.currentTimeMillis());
         this.signatureAlgorithm = signatureAlgorithm;
     }
 }

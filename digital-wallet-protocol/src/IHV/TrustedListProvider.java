@@ -6,56 +6,36 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-
-import DataObjects.TrustedListEntities.ACAProvider;
-import DataObjects.TrustedListEntities.PIDProvider;
-import DataObjects.TrustedListEntities.QEAAProvider;
 import org.json.*;
 
 
 public class TrustedListProvider {
 
-    private static HashMap<String, TrustedEntity> trustedEntities = new HashMap<>();
+    private static final HashMap<String, TrustedIssuerData> trustedIssuers = new HashMap<>();
+
     public static Registrar  registrar;
     public static AccessCertificateAuthority ACA;
 
-    public static void addTrustedEntity(String attestationType, String entityName, String entityType, X509Certificate cert) {
-        String ID = cert.getSerialNumber().toString();
+    public static void addTrustedIssuer(String attestationType, Issuer issuer, X509Certificate cert) {
 
-        switch (entityType.toLowerCase()) {
-            case "issuer":
-            case "pidprovider":
-                PIDProvider pid = new PIDProvider(
-                        ID, entityName, "PID Provider", true, cert, "high"
-                );
-                trustedEntities.put(ID, pid);
-                break;
+        // if issuer does not exist, create it and initialize an attestation map
+        var issuerExists = trustedIssuers.get(issuer.name) != null;
 
-            case "qeaa":
-                QEAAProvider qeaa = new QEAAProvider(
-                        ID, entityName, "QEAA Provider", true, cert, attestationType
-                );
-                trustedEntities.put(ID, qeaa);
-                break;
-
-            case "aca":
-                ACAProvider aca = new ACAProvider(
-                        ID, entityName, "ACA Provider",
-                        true, cert, attestationType
-                );
-                trustedEntities.put(ID, aca);
-                break;
-
-            default:
-                System.out.println("Unknown entity type: " + entityType);
+        if (!issuerExists) {
+            String ID = cert.getSerialNumber().toString();
+            var trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.name, cert.getPublicKey(), new HashMap<>());
+            trustedIssuers.put(issuer.name, trustedIssuer);
         }
+
+        // add attestation to issuer's attestation map
+        trustedIssuers.get(issuer.name).certificateMap().put(attestationType, cert);
 
         exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
 
 
-    public static TrustedEntity getTrustedtrustedEntity(String ID) {
-        return trustedEntities.get(ID);
+    public static TrustedIssuerData getTrustedIssuer(String name) {
+        return trustedIssuers.get(name);
     }
 
     public static void getCertificateOfAnEntity(String ID) {
@@ -66,39 +46,30 @@ public class TrustedListProvider {
     public static void exportTrustedListToJson(String filename) {
         JSONArray jsonArray = new JSONArray();
 
-        for (TrustedEntity entity : trustedEntities.values()) {
+        for (TrustedIssuerData issuer : trustedIssuers.values()) {
             JSONObject trustedEntityJson = new JSONObject();
-            trustedEntityJson.put("id", entity.getID());
-            trustedEntityJson.put("name", entity.getName());
-            trustedEntityJson.put("entityType", entity.getentityType());
-            trustedEntityJson.put("status", entity.getStatus());
+            trustedEntityJson.put("id", issuer.ID());
+            trustedEntityJson.put("name", issuer.name());
 
-            if (entity.getX509CertificateInfo() != null) {
-                X509Certificate cert = entity.getX509CertificateInfo();
+
+            for (String attestationType: issuer.certificateMap().keySet()) {
+                var certificate =  issuer.certificateMap().get(attestationType);
+
                 JSONObject certJson = new JSONObject();
-                certJson.put("version", cert.getVersion());
-                certJson.put("issuer", cert.getIssuerX500Principal().getName());
-                certJson.put("subject", cert.getSubjectX500Principal().getName());
-                certJson.put("serialNumber", cert.getSerialNumber().toString());
-                certJson.put("validFrom", cert.getNotBefore().toString());
-                certJson.put("validTo", cert.getNotAfter().toString());
-                certJson.put("algorithm", cert.getSigAlgName());
-                certJson.put("publicKeyFormat", cert.getPublicKey().getFormat());
-                certJson.put("publicKeyAlgorithm", cert.getPublicKey().getAlgorithm());
-                certJson.put("publicKey", cert.getPublicKey().toString());
+                certJson.put("version", certificate.getVersion());
+                certJson.put("issuer", certificate.getIssuerX500Principal().getName());
+                certJson.put("subject", certificate.getSubjectX500Principal().getName());
+                certJson.put("serialNumber", certificate.getSerialNumber().toString());
+                certJson.put("attestationType", attestationType);
+                certJson.put("validFrom", certificate.getNotBefore().toString());
+                certJson.put("validTo", certificate.getNotAfter().toString());
+                certJson.put("algorithm", certificate.getSigAlgName());
+                certJson.put("publicKeyFormat", certificate.getPublicKey().getFormat());
+                certJson.put("publicKeyAlgorithm", certificate.getPublicKey().getAlgorithm());
+                certJson.put("publicKey", certificate.getPublicKey().toString());
                 trustedEntityJson.put("x509certificate", certJson);
-            } else {
-                trustedEntityJson.put("x509certificate", JSONObject.NULL);
             }
 
-            // Add subclass-specific fields
-            if (entity instanceof PIDProvider pid) {
-                trustedEntityJson.put("levelOfAssurance", pid.getLevelOfAssurance());
-            } else if (entity instanceof QEAAProvider qeaa) {
-                trustedEntityJson.put("attestationType", qeaa.getAttestationType());
-            } else if (entity instanceof ACAProvider aca) {
-                trustedEntityJson.put("attestationType", aca.getAttestationType());
-            }
 
             jsonArray.put(trustedEntityJson);
         }

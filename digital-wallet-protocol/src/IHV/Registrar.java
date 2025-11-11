@@ -65,7 +65,8 @@ public class Registrar {
         }
         KeyPair ACAKeyPair = CryptoTools.generateAsymmetricKeys();
         X509Certificate CACertificate = createCACertificate(certificate, privateKey, "SHA256withRSA", ACAKeyPair.getPublic(), 0);
-        TrustedListProvider.ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
+        ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
+        TrustedListProvider.ACA = ACA;
     }
 
     /*
@@ -77,7 +78,7 @@ public class Registrar {
     public X509Certificate registerVerifier(PublicKey publicKey, String verifierName, String attestationType, String[] attributesRequest) {
 
         // check if their reason is good
-        return ACA.createEndEntityCertificate("SHA256withRSA", publicKey, verifierName, "Verifier", attestationType, attributesRequest);
+        return ACA.createAccessCertificate("SHA256withRSA", publicKey, verifierName);
     }
 
 
@@ -85,15 +86,18 @@ public class Registrar {
         For a PID Provider, QEAA Provider, PuB-EAA Provider, or non-qualified EAA Provider,
         the Registrar registers the attestation type(s) this entity wants to issue to Wallet Units, for example, diplomas, driving licenses or vehicle registration cards.
      */
-    public X509Certificate registerIssuer(PublicKey publicKey, String issuerName, String attestationType, String[] attributesRequest) {
+    public X509Certificate registerIssuer(Issuer issuer, String attestationType, String[] attributesRequest) {
 
         // check that attestation type and the attributes they wish to request are valid, that their reason for
         // using those attributes for that attestation is ok and good.
 
         // if everything works, create and end entity certificate and sign with the CA key.
         // this will link the issuers public key with the certificate
+        var accessCertificate = ACA.createAccessCertificate("SHA256withRSA", issuer.publicKey, issuer.name);;
 
-        return ACA.createEndEntityCertificate("SHA256withRSA", publicKey, issuerName, "Issuer", attestationType, attributesRequest);
+        TrustedListProvider.addTrustedIssuer(attestationType, issuer, accessCertificate);
+
+        return accessCertificate;
     }
 
     /*

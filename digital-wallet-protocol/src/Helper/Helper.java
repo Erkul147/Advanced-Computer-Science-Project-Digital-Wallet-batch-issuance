@@ -1,6 +1,7 @@
 package Helper;
 
 import java.math.BigInteger;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 public class Helper {
@@ -18,5 +19,8 @@ public class Helper {
     public static synchronized BigInteger calculateSerialNumber()
     {
         return BigInteger.valueOf(serialNumberBase++);
+    }
+    public static String GetName(X509Certificate cert) {
+        return cert.getSubjectX500Principal().getName().split(",")[0].split("=")[1];
     }
 }

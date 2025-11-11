@@ -1,40 +1,36 @@
 [
     {
         "x509certificate": {
-            "serialNumber": "1762778614527",
+            "serialNumber": "1762867909493",
             "subject": "CN=GovernmentBody0,OU=Issuer,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
-            "validFrom": "Mon Nov 10 13:43:35 CET 2025",
-            "publicKey": "RSA Public Key [f4:74:a1:47:2f:b5:c1:62:f4:78:44:b4:e7:38:e5:4b:c4:ca:b5:2b],[56:66:d1:a4]\r\n        modulus: a74f44e26e19ae79eb78dc85e3a1449426c9bae9116eb3d1c127abd788b00d4f61458d46679ea607f2d8933cd1f4bed3eb6f22c8ce71946bf3220b08f4cd11ffe040172f09686ccfb155f253074ac3a6b291e1ba13802c7935c2607fd929f25c5e8f92feb16320c2bcab7b6bc33b700336e0ef8c6371de93a7c7fdd07fb635bdae3d9ded1f20dfd7f5f60860ad3cfde0117e44328357e0a65c5ef40ceff40b65dfbc2ba1de3a01e15b761cee2693c8e837c99073073170d350a307ef46917ea9ffd9b5a39e1e38dc3d8fe1dac40f24affdcc58a8d307319a6c1da41d7e763286d5e02cd5b92876c4d89810f63fb6e122cef1119e33212c399c7be197c1649cf3\r\npublic exponent: 10001\r\n",
+            "attestationType": "CitizenCard",
+            "validFrom": "Tue Nov 11 14:31:50 CET 2025",
+            "publicKey": "RSA Public Key [e8:a6:76:5a:47:1a:a4:2c:ab:62:ca:a0:dc:57:c4:49:47:cd:8b:67],[56:66:d1:a4]\r\n        modulus: cfe47a9e9bed0485bc25c5b722da15d6e9005933e80f75baa9f670736f0404305a2a026ae2fa61b86ca5ca3f05b3ec1a876087637a1d894866069854420289a21dcb974d29a848904d680179fd952fedb9b269e226119b89c82b679ad24b13af19c4adb2d53cb1841bb23530442fa297a0968730b4d3898bd1ac73871204698db8c0201c35967578c82c32dd948e6e1b5d63d127ae4bfe36fab4fefef0c5b86745ffc450a1d0fa1698eebbbac400aef900e3140bbfd8a1acc2dba08a2dc98d72a5d8887fc4c2c08e6c6382ac9db6d346ac46a27b767b89522a3f2548d1787656c0ed5b0b0213d67d7d688f706a33594eccbfd5b0f6628d5b2bbeb4acd942f3bd\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority",
-            "validTo": "Tue Nov 10 13:43:35 CET 2026",
+            "validTo": "Wed Nov 11 14:31:50 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
-        "entityType": "PID Provider",
         "name": "GovernmentBody0",
-        "id": "1762778614527",
-        "levelOfAssurance": "high",
-        "status": true
+        "id": "1762867909493"
     },
     {
         "x509certificate": {
-            "serialNumber": "1762778614528",
+            "serialNumber": "1762867909494",
             "subject": "CN=GovernmentBody1,OU=Issuer,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
-            "validFrom": "Mon Nov 10 13:43:35 CET 2025",
-            "publicKey": "RSA Public Key [0d:bb:b5:9b:ca:8a:96:a3:59:f2:87:08:28:cb:53:f1:00:d7:a1:3d],[56:66:d1:a4]\r\n        modulus: eaccce9c49db3a9b8f16ddff228706f4b0459dcf60a8e1ebd24769c3914f1f0737b6a96a25fd5dabc1e8ef88c58af901cdafae9c4df1553120647908553568b0aa5af3f8c3ad57c739d27220948b403fd332c50afc3af0be63ed58ad6f537a71e0a18d322210210d4d2f5fe99c730df9075ca6b6376506e5336010dd8019f1b08766dbe7d29fa6497ad1aa607509430f55c81894c0293f2490c27bcdc67fac67a50a33d914837abfb6150d6ada130104259ea0d09a0ebff57e213fde7b1b14ab62de7efd7cb4e1ec05cac19a5974a5a63036b974832073020436fe12677bcc07cc9314906028659bf5450d2aa955465ea3ac6f49b42faee499c8afb4fb8f8539\r\npublic exponent: 10001\r\n",
+            "attestationType": "AgeProof",
+            "validFrom": "Tue Nov 11 14:31:50 CET 2025",
+            "publicKey": "RSA Public Key [2b:d5:6b:b5:21:5f:ae:cf:90:08:96:98:91:f1:f1:17:75:43:f6:93],[56:66:d1:a4]\r\n        modulus: c2bc93737d3b0ff6ea75b3aa6b662cd6d5fe07b4285a1a02cb3ca4b014c034506f6f91aa26b1ea70280efdeb8104c5b94695bba535b3ab0144456b025fa64f600cd8b9ca0ada74f6d4bca196f5c98e13014e0d1f1d578d26f48ee358490768b9642bd8a297c38de643af1f5e7bdf718b9ce629670332698776c498bb5089b1cd76eb49d24c719393d734e0fd1645dfed8b85e043cee785405e25492a28a6e2b4544f6ea709fc40f06c73104072306346717aaa67344798643ba014573eed331958235e7d56e1af15564db67dfedfa85c343a664ef316328407e54053fda0cd588c1b91444f436f87f3a3470678a9fd1a255da9ad8c2cfff1da09faffb7237635\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority",
-            "validTo": "Tue Nov 10 13:43:35 CET 2026",
+            "validTo": "Wed Nov 11 14:31:50 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
-        "entityType": "PID Provider",
         "name": "GovernmentBody1",
-        "id": "1762778614528",
-        "levelOfAssurance": "high",
-        "status": true
+        "id": "1762867909494"
     }
 ]

@@ -29,10 +29,10 @@ public class AccessCertificateAuthority {
         this.CACertificate = CACertificate;
     }
 
-    public X509Certificate createEndEntityCertificate(String sigAlg, PublicKey certKey, String entityName, String entityType, String attestationType, String[] attributesRequest) {
+    public X509Certificate createAccessCertificate(String sigAlg, PublicKey certKey, String name) {
 
         X500Principal subject = new X500Principal(
-                "CN=" + entityName + ",OU=" + entityType + ",O=ProjectDemo"
+                "CN=" + name + ",OU=Issuer,O=ProjectDemo"
         );
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
@@ -55,7 +55,6 @@ public class AccessCertificateAuthority {
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 
             X509Certificate cert = converter.getCertificate(certBldr.build(signer));
-            NotifyTrustedListProvider(attestationType, entityName, entityType, cert);
 
             return cert;
         } catch (OperatorCreationException | CertificateException | CertIOException e) {
@@ -64,8 +63,8 @@ public class AccessCertificateAuthority {
 
     }
 
-    private void NotifyTrustedListProvider(String attestationType, String entityName, String entityType, X509Certificate cert) {
-        TrustedListProvider.addTrustedEntity(attestationType, entityName, entityType, cert);
+    private void NotifyTrustedListProvider(String attestationType, Issuer issuer, X509Certificate cert) {
+        TrustedListProvider.addTrustedIssuer(attestationType, issuer, cert);
     }
 
 

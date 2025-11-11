@@ -1,8 +1,8 @@
 package IHV;
 
-import CommitmentSchemes.Node;
 import DataObjects.*;
 import Helper.CryptoTools;
+import Helper.Helper;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -30,6 +30,14 @@ public class Holder {
         // add the proofs to a map
         ArrayList<VerifiableCredential> vc = issuer.requestProof(proofName, ID);
 
+
+        if (verifyIssuer(issuer.accessCertificate, presentProof(vc.getFirst(), new int[] {1}))) {
+            System.out.println("Issuer is verified");
+        } else {
+            System.out.println("Issuer is not verified");
+            return;
+        }
+
         proofs.put(proofName, vc);
     }
 
@@ -46,10 +54,11 @@ public class Holder {
        └─ If all pass → Provider is trusted
      */
     public boolean verifyIssuer(X509Certificate certificate, VerifiablePresentation vp) {
-        String name = certificate.getSubjectX500Principal().getName();
-        TrustedEntity trustedEntity = TrustedListProvider.getTrustedtrustedEntity(name);
+        String name = Helper.GetName(certificate);
+        TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(name);
+
         PublicKey certPublicKey = certificate.getPublicKey();
-        PublicKey entityPublicKey = trustedEntity.getX509CertificateInfo().getPublicKey();
+        PublicKey entityPublicKey = trustedIssuer.publicKey();
 
         if (!entityPublicKey.toString().equals(certPublicKey.toString())) {
             return false;
@@ -58,43 +67,53 @@ public class Holder {
         byte[] signedRoot = vp.signedRoot;
         byte[] root = vp.root.hash;
 
-        return CryptoTools.verifySignatureMessage(entityPublicKey, root, signedRoot);
+        return CryptoTools.verifySignatureMessage(certPublicKey, root, signedRoot);
     }
 
     //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
     // Issuing document step 5.
     // presenting a proof
-    public VerifiablePresentation presentProof(String proofName, int index) {
+    public VerifiablePresentation presentProof(VerifiableCredential vc, int[] disclosedIndexes) {
 
-        // access the list of proofs from a proof type
-        var proofs = this.proofs.get(proofName);
+        System.out.println("Presenting proof: " + vc.credentialType());
 
-        // ONE TIME USE: get the first index of the list and remove it.
-        if (proofs == null) return null;
-
-        var proof = proofs.removeFirst();
-
-        System.out.println("Presenting proof: " + proofName);
-        System.out.println(proofs.size() + " proofs left.");
-
-        System.out.println("Root of tree: " + Arrays.toString(proof.merkleTree.root.hash));
-        System.out.println("Signature of root: " + Arrays.toString(proof.signedRoot));
+        System.out.println("Root of tree: " + Arrays.toString(vc.merkleTree().root.hash));
+        System.out.println("Signature of root: " + Arrays.toString(vc.signedRoot()));
         System.out.println();
 
-        // replace batch if list is empty
-        if (proofs.isEmpty()) requestProof(proofName, TrustedService.issuers.get(proof.metaData.issuerName));
 
         //
-        var tree = proof.merkleTree;
+        var tree = vc.merkleTree();
 
-        // present the disclosed attribute and salt, the inclusion path and the signed root
-        var disclosedAttributes = new DisclosedAttribute(tree.salts[index], tree.attributes[index].getBytes());
-        InclusionPath path = tree.generateInclusionPath(index);
+        DisclosedAttribute[] disclosedAttributes = new DisclosedAttribute[disclosedIndexes.length];
+        // find the disclosed attributes and salts, the inclusion path and the signed root
+
+        for (int i = 0; i < disclosedAttributes.length; i++) {
+            var index =  disclosedIndexes[i];
+            var disclosedAttribute = new DisclosedAttribute(tree, index);
+            disclosedAttributes[i] = disclosedAttribute;
+        }
 
 
-        return new VerifiablePresentation(proof.metaData, disclosedAttributes, path, proof.merkleTree.root, proof.signedRoot, proof.metaData.issuerName, proof.providerCertificate);
+        return new VerifiablePresentation(vc.metaData(), disclosedAttributes, vc.merkleTree().root, vc.signedRoot(), vc.metaData().issuerName, vc.providerCertificate());
     }
 
+    public VerifiableCredential getProof(String proofType) {
+        ArrayList<VerifiableCredential> verifiableCredentials = proofs.get(proofType);
+        if (verifiableCredentials == null || verifiableCredentials.isEmpty()) return null;
+
+        VerifiableCredential vc = verifiableCredentials.getFirst();
+        verifiableCredentials.remove(vc);
+        
+        System.out.println("Proofs left: " + verifiableCredentials.size());
+
+        TrustedIssuerData issuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(vc.providerCertificate()));
+
+        // replace batch if list is empty
+        if (verifiableCredentials.isEmpty()) requestProof(vc.credentialType(), issuer.issuer());
+
+        return vc;
+    }
 
 
 }
