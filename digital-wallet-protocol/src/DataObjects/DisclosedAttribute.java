@@ -8,6 +8,7 @@ public class DisclosedAttribute {
     public InclusionPath inclusionPath;
 
     // object to store the disclosed attribute and salt of a merkle tree
+    // also stores the inclusion path
     public DisclosedAttribute(MerkleTree tree, int index) {
         this.salt = tree.salts[index];
         this.value = tree.attributes[index].getBytes();

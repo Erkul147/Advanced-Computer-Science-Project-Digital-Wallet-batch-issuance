@@ -3,9 +3,14 @@ package Helper;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Helper {
     private static long serialNumberBase = System.currentTimeMillis(); // used to make a serial number
+    public static HashMap<String, String> ASN1ObjectIdentifiers = new HashMap<>() {{
+            put("attestation", "1.3.6.1.4.1.1");
+            put("attributes", "1.3.6.1.4.1.2");
+        }};
 
     // helpers
     public static Date calculateDate(int hoursInFuture)

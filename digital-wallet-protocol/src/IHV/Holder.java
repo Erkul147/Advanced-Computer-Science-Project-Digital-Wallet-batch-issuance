@@ -6,8 +6,8 @@ import Helper.Helper;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,39 +21,28 @@ public class Holder {
         this.ID = ID;
     }
 
-    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
-    // Issuing document step 1.
-    // request a specific proof from an issuer
-    public void requestProof(String proofName, Issuer issuer) {
-        System.out.println(proofName + " proof requested");
+    // step 1: request a specific proof from an issuer
+    public void requestProof(String attestationType, Issuer issuer) {
+        System.out.println(attestationType + " proof requested");
 
         // add the proofs to a map
-        ArrayList<VerifiableCredential> vc = issuer.requestProof(proofName, ID);
+        ArrayList<VerifiableCredential> vc = issuer.requestProof(attestationType, ID);
 
 
-        if (verifyIssuer(issuer.accessCertificate, presentProof(vc.getFirst(), new int[] {1}))) {
-            System.out.println("Issuer is verified");
+        System.out.println("\nVerifying that the issuer is legit");
+        if (verifyIssuer(issuer.accessCertificate.get(attestationType), presentProof(vc.getFirst(), new int[] {1}))) {
+            System.out.println("Issuers signature is verified.");
         } else {
             System.out.println("Issuer is not verified");
             return;
         }
 
-        proofs.put(proofName, vc);
+        proofs.put(attestationType, vc);
     }
 
-    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
-    // Issuing document step 4.
-    // TODO: implement a method for verifying the accuracy of the document.
-
-    /*
-    [Wallet] receives provider certificate
-       │
-       ├─ Verify signature with issuer public key
-       ├─ Validate issuer chain up to trusted root CA
-       ├─ Check validity period, revocation, extensions
-       └─ If all pass → Provider is trusted
-     */
+    // step 4: verify issuer
     public boolean verifyIssuer(X509Certificate certificate, VerifiablePresentation vp) {
+
         String name = Helper.GetName(certificate);
         TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(name);
 
@@ -63,22 +52,21 @@ public class Holder {
         if (!entityPublicKey.toString().equals(certPublicKey.toString())) {
             return false;
         }
+        System.out.println("\nCertificate's public key matches trusted list's public key");
 
-        byte[] signedRoot = vp.signedRoot;
-        byte[] root = vp.root.hash;
+        byte[] signedRoot = vp.signedRoot();
+        byte[] root = vp.root().hash;
 
         return CryptoTools.verifySignatureMessage(certPublicKey, root, signedRoot);
     }
 
-    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
-    // Issuing document step 5.
-    // presenting a proof
+    // step 5: present a VP
     public VerifiablePresentation presentProof(VerifiableCredential vc, int[] disclosedIndexes) {
 
         System.out.println("Presenting proof: " + vc.credentialType());
 
-        System.out.println("Root of tree: " + Arrays.toString(vc.merkleTree().root.hash));
-        System.out.println("Signature of root: " + Arrays.toString(vc.signedRoot()));
+        System.out.println("Root of tree: " + CryptoTools.printHash(vc.merkleTree().root.hash));
+        System.out.println("Signature of root: " + CryptoTools.printHash(vc.signedRoot()));
         System.out.println();
 
 
@@ -95,7 +83,7 @@ public class Holder {
         }
 
 
-        return new VerifiablePresentation(vc.metaData(), disclosedAttributes, vc.merkleTree().root, vc.signedRoot(), vc.metaData().issuerName, vc.providerCertificate());
+        return new VerifiablePresentation(vc.metaData(), disclosedAttributes, vc.merkleTree().root, vc.signedRoot(), vc.metaData().issuerName(), vc.providerCertificate());
     }
 
     public VerifiableCredential getProof(String proofType) {
@@ -106,6 +94,7 @@ public class Holder {
         verifiableCredentials.remove(vc);
         
         System.out.println("Proofs left: " + verifiableCredentials.size());
+        System.out.println();
 
         TrustedIssuerData issuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(vc.providerCertificate()));
 

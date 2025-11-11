@@ -1,6 +1,11 @@
 package Helper;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.security.cert.X509Certificate;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
 
 public class CryptoTools {
     // secure random used to generate random bytes
@@ -18,6 +23,21 @@ public class CryptoTools {
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers 1.3.6.1.4.1 is standard root
+    public static String getAttestationFromCertificate(X509Certificate certificate) {
+        byte[] extValue = certificate.getExtensionValue(Helper.ASN1ObjectIdentifiers.get("attestation"));
+        String attestationType = null;
+        if (extValue != null) {
+
+            // The outer value is a DEROctetString; unwrap it
+            byte[] inner = org.bouncycastle.asn1.ASN1OctetString.getInstance(extValue).getOctets();
+            attestationType = new String(inner);
+        }
+
+        assert attestationType != null;
+        return attestationType.substring(2);
     }
 
     // method to generate asymmetric keypairs using the generator
@@ -76,13 +96,19 @@ public class CryptoTools {
             var sig = Signature.getInstance("SHA256withRSA");
             sig.initVerify(key);
             sig.update(message);
-            var verification =  sig.verify(signedMessage);
-            return verification;
+            return sig.verify(signedMessage);
         } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {e.printStackTrace();}
 
         return false;
     }
 
 
+    public static String printHash(byte[] hash) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : hash) {
+            hex.append(String.format("%02x", b & 0xff));
+        }
+        return hex.toString();
+    }
 }
 

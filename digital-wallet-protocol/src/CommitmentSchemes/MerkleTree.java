@@ -3,6 +3,7 @@ package CommitmentSchemes;
 import Helper.CryptoTools;
 import DataObjects.InclusionPath;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -130,9 +131,10 @@ public class MerkleTree {
 
             // add directional information and the hash of the sibling
             path.addPath(siblingHash, siblingIsLeft);
-            System.out.println("Sibling hash: " + Arrays.toString(siblingHash) + ", left: " + siblingIsLeft);
+            System.out.println("Sibling hash: " + CryptoTools.printHash(siblingHash) + ", left: " + siblingIsLeft);
             currentNode = parent;
         }
+        System.out.println();
 
         return path;
     }

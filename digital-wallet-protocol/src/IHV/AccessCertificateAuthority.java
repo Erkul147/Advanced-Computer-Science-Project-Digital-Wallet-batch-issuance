@@ -4,6 +4,8 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 
 import Helper.Helper;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -29,7 +31,7 @@ public class AccessCertificateAuthority {
         this.CACertificate = CACertificate;
     }
 
-    public X509Certificate createAccessCertificate(String sigAlg, PublicKey certKey, String name) {
+    public X509Certificate createAccessCertificate(String sigAlg, PublicKey certKey, String name, String attestationType, String[] attributesRequired) {
 
         X500Principal subject = new X500Principal(
                 "CN=" + name + ",OU=Issuer,O=ProjectDemo"
@@ -47,6 +49,10 @@ public class AccessCertificateAuthority {
             certBldr.addExtension(Extension.basicConstraints, true, new BasicConstraints(false))
                     .addExtension(Extension.keyUsage,true, new KeyUsage(KeyUsage.digitalSignature));
 
+            ASN1ObjectIdentifier myOID = new ASN1ObjectIdentifier("1.3.6.1.4.1.1");
+
+            byte[] attestationTypeBytes = attestationType.getBytes();
+            certBldr.addExtension(myOID, false, new DEROctetString(attestationTypeBytes));
 
             ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
                     .setProvider("BC").build(keyPair.getPrivate());

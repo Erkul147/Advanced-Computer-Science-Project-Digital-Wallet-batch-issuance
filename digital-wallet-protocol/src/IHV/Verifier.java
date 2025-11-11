@@ -5,7 +5,6 @@ import DataObjects.InclusionPath;
 import DataObjects.TrustedIssuerData;
 import Helper.CryptoTools;
 import DataObjects.VerifiablePresentation;
-import Helper.DataRegistry;
 import Helper.Helper;
 
 import java.nio.charset.StandardCharsets;
@@ -31,6 +30,7 @@ public class Verifier {
 
     public Verifier(String name) {
         this.name = name;
+        System.out.println("Verifier " + name + " created.");
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
@@ -46,6 +46,14 @@ public class Verifier {
             return false;
         }
 
+        String fromCertificateAttestation = CryptoTools.getAttestationFromCertificate(certificate);
+
+        System.out.println("Attestation type from certificate: " + fromCertificateAttestation);
+        System.out.println("Attestation type to verify: " + attestationType);
+        System.out.println(("equals: " + fromCertificateAttestation.equals(attestationType)));
+
+
+
         X509Certificate trustedCert = trustedIssuer.certificateMap().get(attestationType);
 
         if (trustedCert != null &&
@@ -54,7 +62,7 @@ public class Verifier {
             trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
             try {
                 // built in method to check if certificate is valid
-                System.out.println("chcking validity, key, serial number and name is correct");
+                System.out.println("chcking validity: public key, id and name matches");
                 certificate.checkValidity();
                 return true; // certificate is trusted and valid
             } catch (Exception e) {
@@ -68,24 +76,17 @@ public class Verifier {
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println("Verifying certificate");
-        if (!verifyCertificate(presentation.providerCertificate, presentation.md.attestationType)) {
+        if (!verifyCertificate(presentation.providerCertificate(), presentation.md().attestationType())) {
             System.out.println("Invalid attestation type");
             return false;
         }
+        System.out.println("Certificate verified\n");
 
-
-        System.out.println("Verifying merkle tree signature");
-        // check expiry date
-        // presentation.md.expiryDate
-
-        // use same signature alg
-        // presentation.md.signatureAlgorithm
-
-        if (DataRegistry.isProofRevoked(presentation.md.ID)) return false;
+        if (TrustedListProvider.isProofRevoked(presentation.md().ID())) return false;
 
         // verify all disclosed attributes
-        DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes;
-        byte[] signedRoot = presentation.signedRoot;
+        DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes();
+        byte[] signedRoot = presentation.signedRoot();
 
         ArrayList<byte[]> hashesComputed = new ArrayList<>();
 
@@ -93,13 +94,14 @@ public class Verifier {
 
         if (disclosedAttributes == null || disclosedAttributes.length == 0) return false;
         for (int i = 0; i < disclosedAttributes.length; i++) {
+            System.out.println("\nFollowing Merkle tree inclusion path:");
 
-            DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes[i];
+            DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes()[i];
             InclusionPath path = disclosedAttribute.inclusionPath;
 
 
             System.out.println("disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
-            System.out.println("disclosed salt: " + Arrays.toString(disclosedAttribute.salt));
+            System.out.println("disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
 
 
             // hashing disclosed attribute with salt
@@ -108,13 +110,13 @@ public class Verifier {
 
             // will loop over the list of hashes. each loop will compute a new hash that is used to compute the next node
             for (int j = 0; j < path.hashes.size(); j++) {
-                System.out.println("Computed hash: " + Arrays.toString(hash));
+                System.out.println("Computed hash: " + CryptoTools.printHash(hash));
                 // if sibling is left then H(sibling, current node) else H(current node, sibling)
                 hash = (path.isSiblingLeft.get(j)) ?
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(j), hash)) :
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(j)));
             }
-            System.out.println("root's hash computed: " + Arrays.toString(hash));
+            System.out.println("root's hash computed: " + CryptoTools.printHash(hash));
             hashesComputed.add(hash);
 
 
@@ -124,14 +126,13 @@ public class Verifier {
 
             finalHash = hash;
         }
+        System.out.println("All paths lead to the same root");
 
-
-
-        System.out.println("signed root: " + Arrays.toString(signedRoot));
+        System.out.println("\nsigned root: " + CryptoTools.printHash(signedRoot));
 
         // use computed root, the given signed root and the public key from the certificate provided which is a known issuer
         // to verify if the attribute and salt was a part of the root
-        PublicKey publicKey = presentation.providerCertificate.getPublicKey();
+        PublicKey publicKey = presentation.providerCertificate().getPublicKey();
         boolean verified = CryptoTools.verifySignatureMessage(publicKey, finalHash, signedRoot);
 
         // UNLINKABILITY CHECK:
@@ -145,7 +146,7 @@ public class Verifier {
             rootsVerified.put(finalHash, count);
         }
 
-        if (verified) System.out.println("proof has been verified :)");
+        if (verified) System.out.println("Attestation has been verified");
 
         return verified;
     }

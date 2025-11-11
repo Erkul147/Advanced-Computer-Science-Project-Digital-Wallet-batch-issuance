@@ -1,54 +1,73 @@
-import CommitmentSchemes.HashList;
-import DataObjects.AuthenticationSteps;
 import DataObjects.VerifiableCredential;
-import Helper.CryptoTools;
-import Helper.DataRegistry;
 import DataObjects.VerifiablePresentation;
 import IHV.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
-import java.util.Arrays;
 
 public class main {
     
     public static void main(String[] args) {
 
         // using bouncy castle, and adding it as the provider
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Adding the security provider");
         Security.addProvider(new BouncyCastleProvider());
 
         // creating Registrar and Access Certificate Authority
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Creating Registrar and CA\n");
         TrustedListProvider.registrar = new Registrar();
 
         // generate new issuers and verifier
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Creating Issuers and Verifiers");
+
         Issuer[] issuers = new Issuer[] {
                 new Issuer("GovernmentBody0"),
                 new Issuer("GovernmentBody1")
         };
+
         Verifier[] verifiers = new  Verifier[] {
                 new Verifier("Hospital"),
                 new Verifier("Kiosk")
         };
 
         // issuers must specify which attestation they want to create and what info it must hold
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Issuer0 request citizen card");
         issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB", "Address", "Resident Country"});
-        issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
+
+        //System.out.println("Issuer1 request age proof");
+        //issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
         // verifier must say which attestation they wish to request data from and what data
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Verifier0 request certificate to request data from citizen card");
         verifiers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB"});
-        verifiers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
+        //System.out.println("Verifier1 request certificate to request data from age proof");
+        //verifiers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
 
         // create holder and request a proof
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Creating a holder/user");
         Holder holder = new Holder("DK12345");
+
+        System.out.println("\n-----------------------------------------");
+        System.out.println("User requesting a proof (citizen card)");
         holder.requestProof("CitizenCard", issuers[0]);
 
         // present proof to a verifier
         VerifiableCredential proof = holder.getProof("CitizenCard");
-        var VP = holder.presentProof(proof, new int[] {0,1});
 
-        System.out.println("verify?");
-        verifiers[1].verifyMerkleTree(VP);
+        System.out.println("\n-----------------------------------------");
+        System.out.println("User creating a VP to show a verifier");
+        var VP = holder.presentProof(proof, new int[] {0,2});
+
+        System.out.println("\n-----------------------------------------");
+        System.out.println("verifying proof");
+        verifiers[0].verifyMerkleTree(VP);
 
         System.out.println();
 
@@ -69,46 +88,6 @@ public class main {
     }
 
 
-    private static void testVerificationHashList() {
-        HashList hashList = new HashList(new String[]{"a", "b", "c", "d"});
-        var disclosedAttributeIndexes = new int[] {1,2,0};
-        var authenticationPath = hashList.generateAuthenticationPath(disclosedAttributeIndexes);
-        verifyHashList(authenticationPath, hashList.list);
-    }
-
-    private static void verifyHashList(AuthenticationSteps authenticationPath, byte[][] hashes) {
-
-        System.out.println("testing verification");
-        int counter = 0;
-        var combinedHashes = new byte[0];
-
-        for (int i = 0; i < hashes.length; i++) {
-            // if the index of the list is a disclosed attribute, concat attribute and salt, then hash it
-            System.out.println("working on index: " + i);
-
-            if (authenticationPath.indexes.contains(i)) {
-                int listIndex = authenticationPath.indexes.get(counter);
-                String attribute = authenticationPath.attributes.get(counter);
-                byte[] salt = authenticationPath.salts.get(counter);
-                System.out.println("disclosed attribute: " + attribute);
-
-                counter++;
-                var combineAttributeAndSalt = CryptoTools.combineByteArrays(attribute.getBytes(), salt);
-                var hash = CryptoTools.hashSHA256(combineAttributeAndSalt);
-                hashes[listIndex] = hash;
-            } else System.out.println("Attribute not disclosed");
-
-            combinedHashes =  CryptoTools.combineByteArrays(combinedHashes, hashes[i]);
-
-        }
-
-        var finalHash =  CryptoTools.hashSHA256(combinedHashes);
-
-        System.out.println("Combined hashes: " + Arrays.toString(combinedHashes));
-        System.out.println("final hash: " + Arrays.toString(finalHash));
-
-
-    }
     private static void testVerificationMerkleTree()  {
 
         var holder = new Holder("DK6789012");
@@ -154,7 +133,7 @@ public class main {
             VerifiableCredential proof = holder.getProof("CitizensCard");
             VerifiablePresentation presentation = holder.presentProof(proof, new int[] {2});
 
-            DataRegistry.addRevocation(presentation.md.ID);
+            TrustedListProvider.addRevocation(presentation.md().ID());
 
 
             // verification: true / false
@@ -165,11 +144,6 @@ public class main {
         }
 
     }
-
-
-
-
-
 
 
 }

@@ -4,14 +4,15 @@ import CommitmentSchemes.MerkleTree;
 import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
-import Helper.DataRegistry;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class Issuer {
     // asymmetrical keypair specific to an issuer
@@ -21,31 +22,28 @@ public class Issuer {
 
     // name of issuer
     public String name;
-    public String attestationType;
-    public String[] attributesRequest;
+
 
     public final String country = "Denmark";
 
     // size of proof batches
     private final int BATCHSIZE = 31;
 
-    public X509Certificate accessCertificate;
+    public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
     public Issuer(String name) {
+        System.out.println("Issuer " + name + " created.");
         this.name = name;
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
-        this.attestationType = attestationType;
-        this.attributesRequest = attributesRequest;
-        accessCertificate = TrustedListProvider.registrar.registerIssuer(this, attestationType, attributesRequest);
+        X509Certificate accessCertificate = TrustedListProvider.registrar.registerIssuer(this, attestationType, attributesRequest);
+
+        this.accessCertificate.put(attestationType, accessCertificate);
     }
 
-    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
-    // Issuing document step 2 and 3. (We have not included authentication data yet. We need public and private keys to create holder DID that PID can bind to the wallet.)
-    // the csv file acts as a secure data registry
+    // step 2: obtain data
     private String[] getPID(String ID) {
-        System.out.println(System.getProperty("user.dir"));
         try {
             // create buffered reader that reads the csv
             BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
@@ -53,7 +51,6 @@ public class Issuer {
             // fake query: find id
             for (String line = br.readLine(); line != null; line = br.readLine() ) {
                 if  (line.contains(ID)) {
-                    System.out.println(line);
                     return line.split(",");
                 }
             }
@@ -63,23 +60,24 @@ public class Issuer {
         return null;
     }
 
-    //  https://ec.europa.eu/digital-building-blocks/sites/spaces/EUDIGITALIDENTITYWALLET/pages/881984686/Wallet+for+Issuers
-    // Issuing document step 3.
-    private ArrayList<VerifiableCredential> sendProofs(String attestationType, String ID) {
+    // step 3: send proofs to user
+    private ArrayList<VerifiableCredential> sendAttestations(String attestationType, String ID) {
         // list to store proofs (use almost like a stack)
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
 
         // fake attributes
         String[] attributes = getPID(ID);
+
         if (attributes == null) return null;
-        System.out.println("creating merkle tree proofs");
+
+        System.out.println("creating merkle tree attestations\n");
         String[] type = new String[]{"VerifiableCredential", attestationType};
 
-        // create all proofs
+        // create all attestation
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
-            MetaData metaData = new MetaData(name, country, type.clone(), "1-1-2030", attestationType, "RSA");
+            MetaData metaData = new MetaData(UUID.randomUUID().toString(), name, country, type.clone(), "1-1-2030", attestationType, new Timestamp(System.currentTimeMillis()), "RSA");
 
             // create the payload
             MerkleTree tree = new MerkleTree(attributes);
@@ -88,10 +86,10 @@ public class Issuer {
             byte[] sign = CryptoTools.signMessage(privateKey, tree.root.hash);
 
             // add the proof the to list
-            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, sign, this, accessCertificate));
-            System.out.println("Proof " + attestationType + " " + (i+1) + " created. Root: " + Arrays.toString(verifiableCredentials.getLast().merkleTree().root.hash));
+            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, sign, this, accessCertificate.get(attestationType)));
+            System.out.println("Attestation " + attestationType + " " + (i+1) + " created. Root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
         }
-        System.out.println(BATCHSIZE + " new proofs created.");
+        System.out.println(BATCHSIZE + " new attestations created.");
 
         System.out.println();
         return verifiableCredentials;
@@ -99,19 +97,11 @@ public class Issuer {
 
     // used to imitate a request, there should be some authentication process of some kind
     public ArrayList<VerifiableCredential> requestProof(String proofName, String ID) {
-        return sendProofs(proofName, ID);
-    }
-
-    //TODO:
-    public boolean authenticateUserIdentity() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return sendAttestations(proofName, ID);
     }
 
     public boolean revokeAttestation(String attestationNo) {
-        return DataRegistry.addRevocation(attestationNo);
+        return TrustedListProvider.addRevocation(attestationNo);
     }
-
-
-
 
 }

@@ -12,6 +12,7 @@ import org.json.*;
 public class TrustedListProvider {
 
     private static final HashMap<String, TrustedIssuerData> trustedIssuers = new HashMap<>();
+    public static List<String> revocationList = new ArrayList<>();
 
     public static Registrar  registrar;
     public static AccessCertificateAuthority ACA;
@@ -19,11 +20,11 @@ public class TrustedListProvider {
     public static void addTrustedIssuer(String attestationType, Issuer issuer, X509Certificate cert) {
 
         // if issuer does not exist, create it and initialize an attestation map
-        var issuerExists = trustedIssuers.get(issuer.name) != null;
+        boolean issuerExists = trustedIssuers.get(issuer.name) != null;
 
         if (!issuerExists) {
             String ID = cert.getSerialNumber().toString();
-            var trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.name, cert.getPublicKey(), new HashMap<>());
+            TrustedIssuerData trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.name, cert.getPublicKey(), new HashMap<>());
             trustedIssuers.put(issuer.name, trustedIssuer);
         }
 
@@ -38,11 +39,21 @@ public class TrustedListProvider {
         return trustedIssuers.get(name);
     }
 
-    public static void getCertificateOfAnEntity(String ID) {
-
-
+    public static boolean addRevocation(String attestationNo) {
+        if (revocationList.contains(attestationNo)) {
+            System.out.println("Revocation already exists");
+            return false;
+        }
+        System.out.println("Revocation added - "  + attestationNo);
+        revocationList.add(attestationNo);
+        return true;
     }
 
+    public static boolean isProofRevoked(String attestationNo) {
+        var isRevoked = revocationList.contains(attestationNo);
+        if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
+        return isRevoked;
+    }
     public static void exportTrustedListToJson(String filename) {
         JSONArray jsonArray = new JSONArray();
 
@@ -76,7 +87,7 @@ public class TrustedListProvider {
 
         try (FileWriter filer = new FileWriter(filename)) {
             filer.write(jsonArray.toString(4)); // Pretty print
-            System.out.println("Trusted list exported to " + filename);
+            //System.out.println("Trusted list exported to " + filename);
         } catch (IOException e) {
             e.printStackTrace();
         }
