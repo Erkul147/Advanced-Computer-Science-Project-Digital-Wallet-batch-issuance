@@ -115,8 +115,8 @@ public class MerkleTree {
         // instantiate an inclusion path object
         InclusionPath path = new InclusionPath();
 
-        System.out.println("Generating inclusion path for index: " + index);
-        System.out.println("path: ");
+        System.out.println("        Generating inclusion path for index: " + index);
+        System.out.println("        path: ");
 
         while(currentNode.parent != null) {
 
@@ -131,7 +131,7 @@ public class MerkleTree {
 
             // add directional information and the hash of the sibling
             path.addPath(siblingHash, siblingIsLeft);
-            System.out.println("Sibling hash: " + CryptoTools.printHash(siblingHash) + ", left: " + siblingIsLeft);
+            System.out.println("            Sibling hash: " + CryptoTools.printHash(siblingHash) + ", left: " + siblingIsLeft);
             currentNode = parent;
         }
         System.out.println();

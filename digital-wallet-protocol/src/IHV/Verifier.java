@@ -30,7 +30,7 @@ public class Verifier {
 
     public Verifier(String name) {
         this.name = name;
-        System.out.println("Verifier " + name + " created.");
+        System.out.println("    Verifier " + name + " created.");
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
@@ -38,19 +38,20 @@ public class Verifier {
     }
 
     public boolean verifyCertificate(X509Certificate certificate, String attestationType) {
+        System.out.println("    Finding issuer data from fake EU trusted lists. Issuer name from certificate: " + Helper.GetName(certificate));
         TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(certificate));
 
         // Check if entity exists
         if (trustedIssuer == null) {
-            System.out.println("Certificate not found in trusted entities.");
+            System.out.println("    Certificate not found in trusted entities.");
             return false;
         }
 
         String fromCertificateAttestation = CryptoTools.getAttestationFromCertificate(certificate);
 
-        System.out.println("Attestation type from certificate: " + fromCertificateAttestation);
-        System.out.println("Attestation type to verify: " + attestationType);
-        System.out.println(("equals: " + fromCertificateAttestation.equals(attestationType)));
+
+        System.out.println("    Attestation type received from holder: " + attestationType);
+        System.out.println("    Attestation type obtained from the trusted list: " + fromCertificateAttestation);
 
 
 
@@ -62,7 +63,7 @@ public class Verifier {
             trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
             try {
                 // built in method to check if certificate is valid
-                System.out.println("chcking validity: public key, id and name matches");
+                System.out.println("        Checking certificate: public key, id and name verified.");
                 certificate.checkValidity();
                 return true; // certificate is trusted and valid
             } catch (Exception e) {
@@ -70,17 +71,17 @@ public class Verifier {
                 return false;
             }
         }
-        System.out.println("validity failed");
+        System.out.println("    Certificate verification failed");
         return false; // Not valid
     }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
-        System.out.println("Verifying certificate");
+        System.out.println("    Verifier: Verifying certificate");
         if (!verifyCertificate(presentation.providerCertificate(), presentation.md().attestationType())) {
-            System.out.println("Invalid attestation type");
+            System.out.println("        Invalid attestation type");
             return false;
         }
-        System.out.println("Certificate verified\n");
+        System.out.println("    Certificate verified\n");
 
         if (TrustedListProvider.isProofRevoked(presentation.md().ID())) return false;
 
@@ -94,14 +95,14 @@ public class Verifier {
 
         if (disclosedAttributes == null || disclosedAttributes.length == 0) return false;
         for (int i = 0; i < disclosedAttributes.length; i++) {
-            System.out.println("\nFollowing Merkle tree inclusion path:");
+            System.out.println("\n  Following Merkle tree inclusion path:");
 
             DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes()[i];
             InclusionPath path = disclosedAttribute.inclusionPath;
 
 
-            System.out.println("disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
-            System.out.println("disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
+            System.out.println("      disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
+            System.out.println("      disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
 
 
             // hashing disclosed attribute with salt
@@ -110,13 +111,13 @@ public class Verifier {
 
             // will loop over the list of hashes. each loop will compute a new hash that is used to compute the next node
             for (int j = 0; j < path.hashes.size(); j++) {
-                System.out.println("Computed hash: " + CryptoTools.printHash(hash));
+                System.out.println("        Computed hash: " + CryptoTools.printHash(hash));
                 // if sibling is left then H(sibling, current node) else H(current node, sibling)
                 hash = (path.isSiblingLeft.get(j)) ?
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(j), hash)) :
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(j)));
             }
-            System.out.println("root's hash computed: " + CryptoTools.printHash(hash));
+            System.out.println("    root's hash computed: " + CryptoTools.printHash(hash));
             hashesComputed.add(hash);
 
 

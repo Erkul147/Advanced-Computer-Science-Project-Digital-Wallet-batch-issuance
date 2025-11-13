@@ -1,5 +1,7 @@
 package DataObjects;
 
+import Helper.CryptoTools;
+
 import java.util.ArrayList;
 
 // an inclusion path contains a list of all the hashes and directions needed to create the root of a merkle tree
@@ -11,5 +13,7 @@ public class InclusionPath {
         hashes.add(a);
         isSiblingLeft.add(b);
     }
+
+
 
 }

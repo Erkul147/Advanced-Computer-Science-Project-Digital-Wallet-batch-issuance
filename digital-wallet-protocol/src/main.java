@@ -10,17 +10,17 @@ public class main {
     public static void main(String[] args) {
 
         // using bouncy castle, and adding it as the provider
-        System.out.println("\n-----------------------------------------");
+        System.out.println("-----------------------------------------");
         System.out.println("Adding the security provider");
         Security.addProvider(new BouncyCastleProvider());
 
         // creating Registrar and Access Certificate Authority
-        System.out.println("\n-----------------------------------------");
-        System.out.println("Creating Registrar and CA\n");
+        System.out.println("-----------------------------------------");
+        System.out.println("Creating Registrar and CA");
         TrustedListProvider.registrar = new Registrar();
 
         // generate new issuers and verifier
-        System.out.println("\n-----------------------------------------");
+        System.out.println("-----------------------------------------");
         System.out.println("Creating Issuers and Verifiers");
 
         Issuer[] issuers = new Issuer[] {
@@ -35,38 +35,31 @@ public class main {
 
         // issuers must specify which attestation they want to create and what info it must hold
         System.out.println("\n-----------------------------------------");
-        System.out.println("Issuer0 request citizen card");
-        issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB", "Address", "Resident Country"});
-
-        //System.out.println("Issuer1 request age proof");
-        //issuers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
+        System.out.println("Issuer0 request Access Certificate to create a Citizen card attestation.");
+        issuers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "lastname", "givennames", "dateofbirth", "placeofbirth", "nationality"});
 
         // verifier must say which attestation they wish to request data from and what data
         System.out.println("\n-----------------------------------------");
-        System.out.println("Verifier0 request certificate to request data from citizen card");
-        verifiers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "Full Name", "DOB"});
-
-        //System.out.println("Verifier1 request certificate to request data from age proof");
-        //verifiers[1].requestAccessCertificate("AgeProof", new String[] {"DOB"});
+        System.out.println("Verifier0 request Access Certificate to request attributes from a Citizen card attestation.");
+        verifiers[0].requestAccessCertificate("CitizenCard", new String[] {"ID", "lastname", "givennames", "dateofbirth"});
 
         // create holder and request a proof
         System.out.println("\n-----------------------------------------");
-        System.out.println("Creating a holder/user");
+        System.out.println("Creating a holder (Wallet).");
         Holder holder = new Holder("DK12345");
 
-        System.out.println("\n-----------------------------------------");
-        System.out.println("User requesting a proof (citizen card)");
+        System.out.println("User requesting an attestation (citizen card):");
         holder.requestProof("CitizenCard", issuers[0]);
 
         // present proof to a verifier
-        VerifiableCredential proof = holder.getProof("CitizenCard");
-
         System.out.println("\n-----------------------------------------");
         System.out.println("User creating a VP to show a verifier");
-        var VP = holder.presentProof(proof, new int[] {0,2});
+        VerifiableCredential proof = holder.getProof("CitizenCard");
+        VerifiablePresentation VP = holder.presentProof(proof, new int[] {0,2});
+        System.out.println(VP.toString());
 
         System.out.println("\n-----------------------------------------");
-        System.out.println("verifying proof");
+        System.out.println("Verifier receives VP and uses it to authenticate the attestation and attributes");
         verifiers[0].verifyMerkleTree(VP);
 
         System.out.println();

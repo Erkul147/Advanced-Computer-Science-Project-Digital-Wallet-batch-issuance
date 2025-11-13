@@ -1,17 +1,17 @@
 [{
     "x509certificate": {
-        "serialNumber": "1762904059516",
+        "serialNumber": "1763077414928",
         "subject": "CN=GovernmentBody0,OU=Issuer,O=ProjectDemo",
         "publicKeyAlgorithm": "RSA",
         "publicKeyFormat": "X.509",
         "attestationType": "CitizenCard",
-        "validFrom": "Wed Nov 12 00:34:20 CET 2025",
-        "publicKey": "RSA Public Key [2c:e0:74:3f:68:e6:6c:e2:2e:88:c5:74:79:54:35:35:5a:79:5b:24],[56:66:d1:a4]\r\n        modulus: bb18255ab178d17a0a26febe4c8f8cb6248ae28c2b2260b654d746fccd7a747fc20a57b0ce4575bfc4905e64807aa2ba4c5ccede3e68c71b0d7c126b047a47b830ee87f4ad73dda3d309018e82389eea17d6bc64db8d58c0240d049bb33c62cbbdf843229fc2e23c7b91a1928f84a61d7dd3f1c10dc3ac01827ce72d5cfb445817b672df7da54bcc16047f49a4c72f470f9c8d33c85c1bf0b66ed372403e9d7f81d44b5c2d0179a80fe758b9fba1822ec88895289c21771353daa337287f5cbc26db8815e60cba6133be8f747dde0ace1c6f8677174cbab6808a684e4cc9bacc4a1da235fb2a99fc072c1b866b8d871c18c956ab5e720e4cd41f07abf406b1e3\r\npublic exponent: 10001\r\n",
+        "validFrom": "Fri Nov 14 00:43:35 CET 2025",
+        "publicKey": "RSA Public Key [9c:cd:0d:14:e9:71:84:65:d7:da:14:86:8b:4f:7e:43:4d:bb:71:12],[56:66:d1:a4]\r\n        modulus: abd786ef9a1f3c5d7594bd685eec9ec7c7b6d59d6404cee67f9ba0830700bf7b9f71e781d05ba15df4111526798b70841da7a48f7f97db2cfb7cf78a72ec025fb20f52ea33212e517def9026c620202010131460aa112660bd786e5d721ca1098c467aa43d8b8f64f4ffd6fc21d3760b856d77b0181b6f9e2aab89f3b91aa29409497c048c52a343f597b4590c51ad57b8d0421a743014ea0f44af70aa84be0e82ea26032b69fb321b5689851fbbd3f6fa5d51f34f90f020cfeb4345e9bc04039c41e3fa32b0ec8ec4dc10caf07719da33c05428f472f73749b02a39a6bb6ab664468b1326f2fa486142ef515ac145263bf0d18190ddd085def1d9495edc5051\r\npublic exponent: 10001\r\n",
         "version": 3,
         "issuer": "CN=Certificate Authority",
-        "validTo": "Thu Nov 12 00:34:20 CET 2026",
+        "validTo": "Sat Nov 14 00:43:35 CET 2026",
         "algorithm": "SHA256WITHRSA"
     },
     "name": "GovernmentBody0",
-    "id": "1762904059516"
+    "id": "1763077414928"
 }]

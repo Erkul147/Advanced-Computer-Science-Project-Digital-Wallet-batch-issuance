@@ -2,6 +2,7 @@ package Helper;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.time.chrono.MinguoDate;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -11,6 +12,10 @@ public class Helper {
             put("attestation", "1.3.6.1.4.1.1");
             put("attributes", "1.3.6.1.4.1.2");
         }};
+    private static HashMap<String, String[]> attestationTypeAttributeNames = new HashMap<>() {{
+        put("CitizenCard", new String[] {"ID", "lastname", "givennames", "dateofbirth", "placeofbirth", "nationality"});
+        put("AgeProof", new String[] {"age"});
+    }};
 
     // helpers
     public static Date calculateDate(int hoursInFuture)
@@ -27,5 +32,9 @@ public class Helper {
     }
     public static String GetName(X509Certificate cert) {
         return cert.getSubjectX500Principal().getName().split(",")[0].split("=")[1];
+    }
+
+    public static String getAttributeNameFromAttestationTypeAndIndex(String attestationType, int index) {
+        return attestationTypeAttributeNames.get(attestationType)[index];
     }
 }

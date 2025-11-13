@@ -5,14 +5,14 @@ import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.security.*;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
+
 
 public class Issuer {
     // asymmetrical keypair specific to an issuer
@@ -27,50 +27,38 @@ public class Issuer {
     public final String country = "Denmark";
 
     // size of proof batches
-    private final int BATCHSIZE = 31;
+    private final int BATCHSIZE = 30;
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
     public Issuer(String name) {
-        System.out.println("Issuer " + name + " created.");
+        System.out.println("    Issuer " + name + " created.");
         this.name = name;
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
         X509Certificate accessCertificate = TrustedListProvider.registrar.registerIssuer(this, attestationType, attributesRequest);
-
         this.accessCertificate.put(attestationType, accessCertificate);
     }
 
-    // step 2: obtain data
-    private String[] getPID(String ID) {
-        try {
-            // create buffered reader that reads the csv
-            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
-
-            // fake query: find id
-            for (String line = br.readLine(); line != null; line = br.readLine() ) {
-                if  (line.contains(ID)) {
-                    return line.split(",");
-                }
-            }
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-        return null;
-    }
 
     // step 3: send proofs to user
     private ArrayList<VerifiableCredential> sendAttestations(String attestationType, String ID) {
         // list to store proofs (use almost like a stack)
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
 
+        if (!Objects.equals(attestationType, "CitizenCard")) {
+            System.out.println("Attestation type not supported: " + attestationType);
+            return null;
+        }
+        System.out.println("    Issuer: Checking if the user has officially registered data.");
         // fake attributes
-        String[] attributes = getPID(ID);
+        String[] attributes = AuthenticSource.getPID(ID);
 
         if (attributes == null) return null;
+        System.out.println("        Data has been found.");
 
-        System.out.println("creating merkle tree attestations\n");
+        System.out.println("    Creating merkle tree attestations for " + attestationType + ".");
         String[] type = new String[]{"VerifiableCredential", attestationType};
 
         // create all attestation
@@ -87,11 +75,10 @@ public class Issuer {
 
             // add the proof the to list
             verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, sign, this, accessCertificate.get(attestationType)));
-            System.out.println("Attestation " + attestationType + " " + (i+1) + " created. Root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
         }
-        System.out.println(BATCHSIZE + " new attestations created.");
+        System.out.println("        Last merkle tree's root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
+        System.out.println("    " + BATCHSIZE + " new attestations created.");
 
-        System.out.println();
         return verifiableCredentials;
     }
 

@@ -59,19 +59,19 @@ public class Registrar {
 
     public Registrar() {
         try {
-            System.out.println("Creating trust anchor for Registrar");
+            System.out.println("    Creating trust anchor for Registrar");
             certificate = createTrustAnchor(keyPair);
         } catch (CertificateException | OperatorCreationException e) {
             throw new RuntimeException(e);
         }
 
         // create Access Certificate Authority (ACA): 1. Create keypair; Create CA certificate with the keypair; 3. Instantiate a new ACA
-        System.out.println("Creating keypair and CA certificate for Access Certificate Authority");
+        System.out.println("    Creating keypair and CA certificate for Access Certificate Authority");
         KeyPair ACAKeyPair = CryptoTools.generateAsymmetricKeys();
         X509Certificate CACertificate = createCACertificate(certificate, ACAKeyPair.getPublic());
         ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
 
-        System.out.println("Adding ACA to the trusted list");
+        System.out.println("    Adding ACA to the trusted list");
         TrustedListProvider.ACA = ACA;
     }
 
@@ -82,6 +82,8 @@ public class Registrar {
      */
 
     public X509Certificate registerVerifier(PublicKey publicKey, String verifierName, String attestationType, String[] attributesRequired) {
+        System.out.println("    Registrar: Registering verifier " + verifierName);
+        System.out.println("    Checking if verifier meets the requirements to obtain certificate...");
 
         // check if their reason is good
         return ACA.createAccessCertificate("SHA256withRSA", publicKey, verifierName, attestationType, attributesRequired);
@@ -93,7 +95,8 @@ public class Registrar {
         the Registrar registers the attestation type(s) this entity wants to issue to Wallet Units, for example, diplomas, driving licenses or vehicle registration cards.
      */
     public X509Certificate registerIssuer(Issuer issuer, String attestationType, String[] attributesRequired) {
-
+        System.out.println("    Registrar: Registering issuer " + issuer.name);
+        System.out.println("    Checking if issuer meets the requirements to obtain certificate...");
         // check that attestation type and the attributes they wish to request are valid, that their reason for
         // using those attributes for that attestation is ok and good.
 

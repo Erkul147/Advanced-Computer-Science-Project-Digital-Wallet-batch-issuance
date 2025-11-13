@@ -18,6 +18,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import javax.security.auth.x500.X500Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 
 public class AccessCertificateAuthority {
@@ -32,7 +33,7 @@ public class AccessCertificateAuthority {
     }
 
     public X509Certificate createAccessCertificate(String sigAlg, PublicKey certKey, String name, String attestationType, String[] attributesRequired) {
-
+        System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
                 "CN=" + name + ",OU=Issuer,O=ProjectDemo"
         );
