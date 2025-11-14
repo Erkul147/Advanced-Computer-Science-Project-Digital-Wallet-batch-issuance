@@ -1,17 +1,17 @@
 [{
     "x509certificate": {
-        "serialNumber": "1763077321090",
-        "subject": "CN=GovernmentBody0,OU=Issuer,O=ProjectDemo",
+        "serialNumber": "1763080098906",
+        "subject": "CN=GovernmentBody0,OU=issuer,O=ProjectDemo",
         "publicKeyAlgorithm": "RSA",
         "publicKeyFormat": "X.509",
         "attestationType": "CitizenCard",
-        "validFrom": "Fri Nov 14 00:42:01 CET 2025",
-        "publicKey": "RSA Public Key [7e:c2:03:50:b7:31:83:9b:ae:e1:42:f7:f5:df:b0:34:40:b2:10:a5],[56:66:d1:a4]\r\n        modulus: dabadb1bfb8b1402c442df6b1ab5a9b36a4b04b737908fb8ab996eaeddeae65c3a7c96376f790094d5b8d341ce51676d15fbcbaf694ed32aeb37d10afa7f98a408ef8d7749fc3c013782422f6a8bae8bb2ecb56c326e60e54e3a00c592c05835739217e08bd351ec2144df31b17561f44882c037775ec5c4f1ef224d28694efda485280491b049136dc481cb4e89a5356da3475a241413ed54885d162af71810e24d793bd1f9ccd3bc873c6a12c39dc30c9f9ab102a59cadfbd916c184ecfb3ffc747369ce387d22accc1e19c69446a536f6dfee2bd25e0b5ecbb3075e41a4fde97ec647b40143bde7ace8d0be6f6d2ae03d960781c73215dac9a1277df171d1\r\npublic exponent: 10001\r\n",
+        "validFrom": "Fri Nov 14 01:28:19 CET 2025",
+        "publicKey": "RSA Public Key [44:5a:a0:dd:87:77:9c:83:bf:36:2e:ba:35:3e:b4:68:b4:82:63:61],[56:66:d1:a4]\r\n        modulus: c1c26b5ed0873efbf2efb32cf40d2e94322d8b5a7b3c386c83d1aeb1c9c20e245bd4dd4d88f201d7b7657bd3df7f6ac04dd9d3fa3afe0c597c0a35c0b8d0a812bc74118a2cb1eaf413f39b4adcf5a920fdf25494560e27c9e96263487d594b5a8fcf3e10aecd6e4173daa88be73c1e97c847db560f0cba005c49a2c82147757f6c838e79e0328ff4ae755c09b5c5d418eb96b0c67e8e17e0d1c6b6e4d5c97b21e091285c8089a4798e09698b3a6e5c472b40499a2bfb8b92b0ba1f706e2d9cc4755b1e211cc4b97eccb3bce03a789a08eb0ab00b8063063dfc679196e99f567cc5b664478d38292bd08e76dca7ade9f42091a7a28ae8246d59efe71c4d4490d1\r\npublic exponent: 10001\r\n",
         "version": 3,
         "issuer": "CN=Certificate Authority",
-        "validTo": "Sat Nov 14 00:42:01 CET 2026",
+        "validTo": "Sat Nov 14 01:28:19 CET 2026",
         "algorithm": "SHA256WITHRSA"
     },
     "name": "GovernmentBody0",
-    "id": "1763077321090"
+    "id": "1763080098906"
 }]

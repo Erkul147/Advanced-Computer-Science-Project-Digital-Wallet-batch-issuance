@@ -32,10 +32,10 @@ public class AccessCertificateAuthority {
         this.CACertificate = CACertificate;
     }
 
-    public X509Certificate createAccessCertificate(String sigAlg, PublicKey certKey, String name, String attestationType, String[] attributesRequired) {
+    public X509Certificate createAccessCertificate(String sigAlg, Entity entity, String attestationType, String[] attributesRequired) {
         System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
-                "CN=" + name + ",OU=Issuer,O=ProjectDemo"
+                "CN=" + entity.getName() + ",OU=" + entity.getType() + ",O=ProjectDemo"
         );
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
@@ -44,7 +44,7 @@ public class AccessCertificateAuthority {
                 Helper.calculateDate(0),
                 Helper.calculateDate(24 * 365),
                 subject,
-                certKey);
+                entity.getPublicKey());
 
         try {
             certBldr.addExtension(Extension.basicConstraints, true, new BasicConstraints(false))
@@ -62,6 +62,11 @@ public class AccessCertificateAuthority {
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 
             X509Certificate cert = converter.getCertificate(certBldr.build(signer));
+
+            if (entity instanceof Issuer) {
+                System.out.println("       Adding " +  entity.getName() + " as issuer of " + attestationType + " with " +  Arrays.toString(attributesRequired) + " as attributes.");
+                NotifyTrustedListProvider(attestationType, (Issuer) entity, cert);
+            }
 
             return cert;
         } catch (OperatorCreationException | CertificateException | CertIOException e) {

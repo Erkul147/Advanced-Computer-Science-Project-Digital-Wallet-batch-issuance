@@ -12,6 +12,7 @@ public class MerkleTree {
     public ArrayList<ArrayList<Node>> tree = new ArrayList<>();
     public byte[][] salts;
     public String[] attributes;
+    public byte[] signedRoot;
     public Node root;
 
 

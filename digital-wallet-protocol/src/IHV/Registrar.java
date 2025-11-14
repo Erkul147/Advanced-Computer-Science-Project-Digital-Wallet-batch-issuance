@@ -60,7 +60,7 @@ public class Registrar {
     public Registrar() {
         try {
             System.out.println("    Creating trust anchor for Registrar");
-            certificate = createTrustAnchor(keyPair);
+            certificate = createTrustAnchor();
         } catch (CertificateException | OperatorCreationException e) {
             throw new RuntimeException(e);
         }
@@ -68,8 +68,9 @@ public class Registrar {
         // create Access Certificate Authority (ACA): 1. Create keypair; Create CA certificate with the keypair; 3. Instantiate a new ACA
         System.out.println("    Creating keypair and CA certificate for Access Certificate Authority");
         KeyPair ACAKeyPair = CryptoTools.generateAsymmetricKeys();
-        X509Certificate CACertificate = createCACertificate(certificate, ACAKeyPair.getPublic());
+        X509Certificate CACertificate = createCACertificate(ACAKeyPair.getPublic());
         ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
+        TrustedListProvider.setCACertificate(CACertificate);
 
         System.out.println("    Adding ACA to the trusted list");
         TrustedListProvider.ACA = ACA;
@@ -81,12 +82,12 @@ public class Registrar {
     The Registrar also registers if the Relying Party intends to use the services of an intermediary (see Section 3.11) to interact with Wallet Units, and if so, which one.
      */
 
-    public X509Certificate registerVerifier(PublicKey publicKey, String verifierName, String attestationType, String[] attributesRequired) {
-        System.out.println("    Registrar: Registering verifier " + verifierName);
+    public X509Certificate registerVerifier(Verifier verifier, String attestationType, String[] attributesRequired) {
+        System.out.println("    Registrar: Registering verifier " + verifier.name);
         System.out.println("    Checking if verifier meets the requirements to obtain certificate...");
 
         // check if their reason is good
-        return ACA.createAccessCertificate("SHA256withRSA", publicKey, verifierName, attestationType, attributesRequired);
+        return ACA.createAccessCertificate("SHA256withRSA", verifier, attestationType, attributesRequired);
     }
 
 
@@ -95,15 +96,14 @@ public class Registrar {
         the Registrar registers the attestation type(s) this entity wants to issue to Wallet Units, for example, diplomas, driving licenses or vehicle registration cards.
      */
     public X509Certificate registerIssuer(Issuer issuer, String attestationType, String[] attributesRequired) {
-        System.out.println("    Registrar: Registering issuer " + issuer.name);
+        System.out.println("    Registrar: Registering issuer " + issuer.getName());
         System.out.println("    Checking if issuer meets the requirements to obtain certificate...");
         // check that attestation type and the attributes they wish to request are valid, that their reason for
         // using those attributes for that attestation is ok and good.
 
         // if everything works, create and end entity certificate and sign with the CA key.
         // this will link the issuers public key with the certificate
-        var accessCertificate = ACA.createAccessCertificate("SHA256withRSA", issuer.publicKey, issuer.name, attestationType, attributesRequired);
-        TrustedListProvider.addTrustedIssuer(attestationType, issuer, accessCertificate);
+        var accessCertificate = ACA.createAccessCertificate("SHA256withRSA", issuer, attestationType, attributesRequired);
 
         return accessCertificate;
     }
@@ -115,34 +115,24 @@ public class Registrar {
     "Access Certificate Authorities are notified by a Member State to the Commission.
     As part of the notification process, the trust anchors of the Access CA are included in a Trusted List by a Trusted List Provider"
     */
-    private X509Certificate createCACertificate(
-            X509Certificate signerCert, PublicKey certKey)
-
-    {
+    private X509Certificate createCACertificate(PublicKey certKey) {
         X500Principal subject = new X500Principal("CN=Certificate Authority");
 
-
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
-                signerCert.getSubjectX500Principal(),
+                certificate.getSubjectX500Principal(),
                 Helper.calculateSerialNumber(), // id
                 Helper.calculateDate(0), // valid from now
                 Helper.calculateDate(24 * 365), // valid for 365 days
                 subject,
                 certKey);
 
-
         try {
-
             certBldr.addExtension(Extension.basicConstraints,true, new BasicConstraints(0))
                     .addExtension(Extension.keyUsage,true, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
-
-            ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA")
-                    .setProvider("BC").build(privateKey);
-
+            ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(privateKey);
 
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
-
 
             return converter.getCertificate(certBldr.build(signer));
         } catch (CertificateException | OperatorCreationException | CertIOException e) {
@@ -151,8 +141,7 @@ public class Registrar {
     }
 
 
-    private X509Certificate createTrustAnchor(
-            KeyPair keyPair)
+    private X509Certificate createTrustAnchor()
             throws OperatorCreationException, CertificateException
     {
         X500Name name = new X500Name("CN=Trust Anchor");
@@ -170,9 +159,7 @@ public class Registrar {
         ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA")
                 .setProvider("BC").build(keyPair.getPrivate());
 
-
         JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
-
 
         return converter.getCertificate(certBldr.build(signer));
     }

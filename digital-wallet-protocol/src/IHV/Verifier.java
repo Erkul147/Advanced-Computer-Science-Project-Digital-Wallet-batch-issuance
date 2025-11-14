@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Verifier {
+public class Verifier extends Entity {
     private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
     private final PrivateKey privateKey = keyPair.getPrivate();
     public final PublicKey publicKey = keyPair.getPublic();
@@ -29,55 +29,17 @@ public class Verifier {
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
 
     public Verifier(String name) {
-        this.name = name;
+        super(name, "verifier");
         System.out.println("    Verifier " + name + " created.");
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
-        accessCertificate = TrustedListProvider.registrar.registerVerifier(publicKey, name, attestationType, attributesRequest);
-    }
-
-    public boolean verifyCertificate(X509Certificate certificate, String attestationType) {
-        System.out.println("    Finding issuer data from fake EU trusted lists. Issuer name from certificate: " + Helper.GetName(certificate));
-        TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(certificate));
-
-        // Check if entity exists
-        if (trustedIssuer == null) {
-            System.out.println("    Certificate not found in trusted entities.");
-            return false;
-        }
-
-        String fromCertificateAttestation = CryptoTools.getAttestationFromCertificate(certificate);
-
-
-        System.out.println("    Attestation type received from holder: " + attestationType);
-        System.out.println("    Attestation type obtained from the trusted list: " + fromCertificateAttestation);
-
-
-
-        X509Certificate trustedCert = trustedIssuer.certificateMap().get(attestationType);
-
-        if (trustedCert != null &&
-            trustedCert.getPublicKey().equals(certificate.getPublicKey()) &&
-            trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) &&
-            trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
-            try {
-                // built in method to check if certificate is valid
-                System.out.println("        Checking certificate: public key, id and name verified.");
-                certificate.checkValidity();
-                return true; // certificate is trusted and valid
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        System.out.println("    Certificate verification failed");
-        return false; // Not valid
+        accessCertificate = TrustedListProvider.registrar.registerVerifier(this, attestationType, attributesRequest);
     }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println("    Verifier: Verifying certificate");
-        if (!verifyCertificate(presentation.providerCertificate(), presentation.md().attestationType())) {
+        if (!Helper.verifyCertificate(presentation.providerCertificate(), presentation.md().attestationType())) {
             System.out.println("        Invalid attestation type");
             return false;
         }

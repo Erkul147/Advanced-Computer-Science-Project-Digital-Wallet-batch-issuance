@@ -13,6 +13,8 @@ public class TrustedListProvider {
 
     private static final HashMap<String, TrustedIssuerData> trustedIssuers = new HashMap<>();
     public static List<String> revocationList = new ArrayList<>();
+    private static X509Certificate CACertificate;
+
 
     public static Registrar  registrar;
     public static AccessCertificateAuthority ACA;
@@ -20,16 +22,16 @@ public class TrustedListProvider {
     public static void addTrustedIssuer(String attestationType, Issuer issuer, X509Certificate cert) {
 
         // if issuer does not exist, create it and initialize an attestation map
-        boolean issuerExists = trustedIssuers.get(issuer.name) != null;
+        boolean issuerExists = trustedIssuers.get(issuer.getName()) != null;
 
         if (!issuerExists) {
             String ID = cert.getSerialNumber().toString();
-            TrustedIssuerData trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.name, cert.getPublicKey(), new HashMap<>());
-            trustedIssuers.put(issuer.name, trustedIssuer);
+            TrustedIssuerData trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.getName(), cert.getPublicKey(), new HashMap<>());
+            trustedIssuers.put(issuer.getName(), trustedIssuer);
         }
 
         // add attestation to issuer's attestation map
-        trustedIssuers.get(issuer.name).certificateMap().put(attestationType, cert);
+        trustedIssuers.get(issuer.getName()).certificateMap().put(attestationType, cert);
 
         exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
@@ -49,6 +51,13 @@ public class TrustedListProvider {
         return true;
     }
 
+    public static X509Certificate getCACertificate() {
+        return CACertificate;
+    }
+
+    public static void setCACertificate(X509Certificate CACertificate) {
+        TrustedListProvider.CACertificate = CACertificate;
+    }
     public static boolean isProofRevoked(String attestationNo) {
         var isRevoked = revocationList.contains(attestationNo);
         if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);

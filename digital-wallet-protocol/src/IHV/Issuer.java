@@ -14,16 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public class Issuer {
-    // asymmetrical keypair specific to an issuer
-    private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
-    private final PrivateKey privateKey = keyPair.getPrivate();
-    public final PublicKey publicKey = keyPair.getPublic();
-
-    // name of issuer
-    public String name;
-
-
+public class Issuer extends Entity {
     public final String country = "Denmark";
 
     // size of proof batches
@@ -32,8 +23,8 @@ public class Issuer {
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
     public Issuer(String name) {
+        super(name, "issuer");
         System.out.println("    Issuer " + name + " created.");
-        this.name = name;
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
@@ -65,16 +56,18 @@ public class Issuer {
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
-            MetaData metaData = new MetaData(UUID.randomUUID().toString(), name, country, type.clone(), "1-1-2030", attestationType, new Timestamp(System.currentTimeMillis()), "RSA");
+            MetaData metaData = new MetaData(UUID.randomUUID().toString(), getName(), country, type.clone(), "1-1-2030", attestationType, new Timestamp(System.currentTimeMillis()), "RSA");
 
             // create the payload
             MerkleTree tree = new MerkleTree(attributes);
 
+
             // signature of the root
-            byte[] sign = CryptoTools.signMessage(privateKey, tree.root.hash);
+            byte[] sign = CryptoTools.signMessage(getPrivateKey(), tree.root.hash);
+            tree.signedRoot = sign;
 
             // add the proof the to list
-            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, sign, this, accessCertificate.get(attestationType)));
+            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, this, accessCertificate.get(attestationType)));
         }
         System.out.println("        Last merkle tree's root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
         System.out.println("    " + BATCHSIZE + " new attestations created.");

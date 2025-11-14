@@ -5,7 +5,7 @@ import IHV.Issuer;
 
 import java.security.cert.X509Certificate;
 
-public record VerifiableCredential(String credentialType, MetaData metaData, MerkleTree merkleTree, byte[] signedRoot,
+public record VerifiableCredential(String credentialType, MetaData metaData, MerkleTree merkleTree,
                                    Issuer issuer, X509Certificate providerCertificate) {
     // verifiable credential
 
