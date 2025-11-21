@@ -33,6 +33,10 @@ public class AccessCertificateAuthority extends Entity {
         super("ACA", inbox, router);
     }
 
+    @Override
+    protected void handle(Message<?> msg) {
+
+    }
     public X509Certificate createAccessCertificate(String sigAlg, Entity entity, String attestationType, String[] attributesRequired) {
         System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
@@ -81,8 +85,4 @@ public class AccessCertificateAuthority extends Entity {
     }
 
 
-    @Override
-    protected void handle(Message<?> msg) {
-
-    }
 }

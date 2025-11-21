@@ -26,6 +26,7 @@ import java.security.PublicKey;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 
 import Helper.Helper;
@@ -48,7 +49,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 
 import javax.security.auth.x500.X500Principal;
 
-import static IHV.TrustedListProvider.ACA;
+import static Messaging.MessageType.CERT_ISSUED;
 
 
 public class Registrar extends Entity {
@@ -74,10 +75,18 @@ public class Registrar extends Entity {
                     throw new RuntimeException(e);
                 }
             }
+
             case RESPONSE_PUBLIC_KEY -> {
-                System.out.println("Got key");
+                if (msg.payload() instanceof PublicKey pk && msg.from().equals("TLP")) {
+                    router.route(new Message<>(name, "ACA", CERT_ISSUED, createCACertificate(pk)));
+                }
             }
 
+            case REQUEST_REGISTRATION -> {
+                if (msg.payload() instanceof String payload) {
+                    router.route(new Message<>(name, "ACA", MessageType.REQUEST_CERT, payload));
+                }
+            }
 
         }
     }
@@ -88,31 +97,7 @@ public class Registrar extends Entity {
     The Registrar also registers if the Relying Party intends to use the services of an intermediary (see Section 3.11) to interact with Wallet Units, and if so, which one.
      */
 
-    public X509Certificate registerVerifier(Verifier verifier, String attestationType, String[] attributesRequired) {
-        System.out.println("    Registrar: Registering verifier " + verifier.name);
-        System.out.println("    Checking if verifier meets the requirements to obtain certificate...");
 
-        // check if their reason is good
-        return ACA.createAccessCertificate("SHA256withRSA", verifier, attestationType, attributesRequired);
-    }
-
-
-    /*
-        For a PID Provider, QEAA Provider, PuB-EAA Provider, or non-qualified EAA Provider,
-        the Registrar registers the attestation type(s) this entity wants to issue to Wallet Units, for example, diplomas, driving licenses or vehicle registration cards.
-     */
-    public X509Certificate registerIssuer(Issuer issuer, String attestationType, String[] attributesRequired) {
-        System.out.println("    Registrar: Registering issuer " + issuer.getName());
-        System.out.println("    Checking if issuer meets the requirements to obtain certificate...");
-        // check that attestation type and the attributes they wish to request are valid, that their reason for
-        // using those attributes for that attestation is ok and good.
-
-        // if everything works, create and end entity certificate and sign with the CA key.
-        // this will link the issuers public key with the certificate
-        var accessCertificate = ACA.createAccessCertificate("SHA256withRSA", issuer, attestationType, attributesRequired);
-
-        return accessCertificate;
-    }
 
     /*
     createCACertificate:

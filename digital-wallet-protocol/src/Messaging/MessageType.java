@@ -3,6 +3,7 @@ package Messaging;
 public enum MessageType {
     REQUEST_CERT,
     CERT_ISSUED,
+    REQUEST_REGISTRATION,
     NOTIFY_TL,
     REQUEST_ATTESTATION,
     ATTESTATION_ISSUED,

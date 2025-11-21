@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
+import static Messaging.MessageType.REQUEST_REGISTRATION;
+
 
 public class Issuer extends Entity {
     public final String country = "Denmark";
@@ -28,13 +30,13 @@ public class Issuer extends Entity {
     public Issuer(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
         System.out.println("Issuer " + name + " created.");
+        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, "name:" + name + ",entityType:issuer,attestationType:citizencard" + ",attributes:a;b;c"));
     }
 
-    public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
-        X509Certificate accessCertificate = TrustedListProvider.registrar.registerIssuer(this, attestationType, attributesRequest);
-        this.accessCertificate.put(attestationType, accessCertificate);
-    }
+    @Override
+    protected void handle(Message<?> msg) {
 
+    }
 
     // step 3: send proofs to user
     private ArrayList<VerifiableCredential> sendAttestations(String attestationType, String ID) {
@@ -87,8 +89,5 @@ public class Issuer extends Entity {
         return TrustedListProvider.addRevocation(attestationNo);
     }
 
-    @Override
-    protected void handle(Message<?> msg) {
 
-    }
 }

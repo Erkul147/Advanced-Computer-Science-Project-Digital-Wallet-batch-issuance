@@ -8,6 +8,7 @@ import DataObjects.VerifiablePresentation;
 import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
+import Messaging.MessageType;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
+
+import static Messaging.MessageType.REQUEST_REGISTRATION;
 
 public class Verifier extends Entity {
 
@@ -31,6 +34,7 @@ public class Verifier extends Entity {
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
         System.out.println("Verifier " + name + " created.");
+        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, "name:" + name + ",entityType:verifier,attestationType:citizencard" + ",attributes:a;b;c"));
     }
 
     @Override
@@ -38,9 +42,6 @@ public class Verifier extends Entity {
 
     }
 
-    public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
-        accessCertificate = TrustedListProvider.registrar.registerVerifier(this, attestationType, attributesRequest);
-    }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println("    Verifier: Verifying certificate");
