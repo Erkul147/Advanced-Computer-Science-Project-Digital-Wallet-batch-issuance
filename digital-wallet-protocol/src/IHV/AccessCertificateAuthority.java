@@ -1,11 +1,11 @@
 package IHV;
 
-import java.security.KeyPair;
 import java.security.PublicKey;
 
 import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
+import Messaging.MessagingDataObjects.RegistrationData;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
@@ -23,6 +23,9 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 
+import static Messaging.MessageType.CERT_ISSUED;
+import static Messaging.MessageType.NOTIFY_TL;
+
 
 public class AccessCertificateAuthority extends Entity {
 
@@ -35,12 +38,31 @@ public class AccessCertificateAuthority extends Entity {
 
     @Override
     protected void handle(Message<?> msg) {
+        if (msg == null) return;
+        switch (msg.type()) {
+            case CERT_ISSUED -> {
+                if (msg.from().equals("Registrar") && msg.payload() instanceof X509Certificate cert) {
+                    CACertificate = cert;
+                }
+            }
+            case REQUEST_CERT ->  {
+                if (msg.from().equals("Registrar") && msg.payload() instanceof RegistrationData payload) {
+                    var certificate = createAccessCertificate("SHA256withRSA", payload.entityName(), payload.attestationType(), payload.attributes(), payload.publicKey());
+                    router.route(new Message<>(name, payload.entityName(), CERT_ISSUED, certificate));
+                    router.route(new Message<>(name, "TLP" , NOTIFY_TL, certificate));
+
+
+                }
+            }
+
+
+        }
 
     }
-    public X509Certificate createAccessCertificate(String sigAlg, Entity entity, String attestationType, String[] attributesRequired) {
+    public X509Certificate createAccessCertificate(String sigAlg, String entityName, String attestationType, String[] attributesRequired, PublicKey publicKey) {
         System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
-                "CN=" + entity.getName() + ",OU=" + entity.getClass().getName() + ",O=ProjectDemo"
+                "CN=" + entityName + ",OU=" + attestationType + ",O=ProjectDemo"
         );
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
@@ -49,7 +71,7 @@ public class AccessCertificateAuthority extends Entity {
                 Helper.calculateDate(0),
                 Helper.calculateDate(24 * 365),
                 subject,
-                entity.getPublicKey());
+                publicKey);
 
         try {
             certBldr.addExtension(Extension.basicConstraints, true, new BasicConstraints(false))
@@ -63,26 +85,13 @@ public class AccessCertificateAuthority extends Entity {
             ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
                     .setProvider("BC").build(keyPair.getPrivate());
 
-
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 
-            X509Certificate cert = converter.getCertificate(certBldr.build(signer));
-
-            if (entity instanceof Issuer) {
-                System.out.println("       Adding " +  entity.getName() + " as issuer of " + attestationType + " with " +  Arrays.toString(attributesRequired) + " as attributes.");
-                NotifyTrustedListProvider(attestationType, (Issuer) entity, cert);
-            }
-
-            return cert;
+            return converter.getCertificate(certBldr.build(signer));
         } catch (OperatorCreationException | CertificateException | CertIOException e) {
             throw new RuntimeException(e);
         }
 
     }
-
-    private void NotifyTrustedListProvider(String attestationType, Issuer issuer, X509Certificate cert) {
-        TrustedListProvider.addTrustedIssuer(attestationType, issuer, cert);
-    }
-
 
 }

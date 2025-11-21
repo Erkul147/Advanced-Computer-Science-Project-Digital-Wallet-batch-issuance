@@ -33,6 +33,7 @@ import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
+import Messaging.MessagingDataObjects.RegistrationData;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -49,7 +50,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 
 import javax.security.auth.x500.X500Principal;
 
-import static Messaging.MessageType.CERT_ISSUED;
+import static Messaging.MessageType.*;
 
 
 public class Registrar extends Entity {
@@ -70,7 +71,7 @@ public class Registrar extends Entity {
                 try {
                     System.out.println("Creating trust anchor for Registrar");
                     certificate = createTrustAnchor();
-                    router.route(new Message<>(getName(), "TLP", MessageType.REQUEST_PUBLIC_KEY, "ACA"));
+                    router.route(new Message<>(getName(), "TLP", REQUEST_PUBLIC_KEY, "ACA"));
                 } catch (CertificateException | OperatorCreationException e) {
                     throw new RuntimeException(e);
                 }
@@ -83,10 +84,12 @@ public class Registrar extends Entity {
             }
 
             case REQUEST_REGISTRATION -> {
-                if (msg.payload() instanceof String payload) {
-                    router.route(new Message<>(name, "ACA", MessageType.REQUEST_CERT, payload));
+                if (msg.payload() instanceof RegistrationData payload) {
+                    router.route(new Message<>(name, "ACA", REQUEST_CERT, payload));
                 }
             }
+
+
 
         }
     }

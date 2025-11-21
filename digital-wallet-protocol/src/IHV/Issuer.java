@@ -6,8 +6,8 @@ import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Messaging.Message;
 import Messaging.MessageRouter;
+import Messaging.MessagingDataObjects.RegistrationData;
 
-import java.security.*;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
-import static Messaging.MessageType.REQUEST_REGISTRATION;
+import static Messaging.MessageType.*;
 
 
 public class Issuer extends Entity {
@@ -30,11 +30,26 @@ public class Issuer extends Entity {
     public Issuer(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
         System.out.println("Issuer " + name + " created.");
-        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, "name:" + name + ",entityType:issuer,attestationType:citizencard" + ",attributes:a;b;c"));
+        var payload = new RegistrationData(name, "Issuer", "CitizenCard", new String[]{"a", "b", "c"}, getPublicKey());
+        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
     }
 
     @Override
     protected void handle(Message<?> msg) {
+        if (msg == null) return;
+        switch (msg.type()) {
+            case CERT_ISSUED -> {
+                if (msg.from().equals("Registrar") && msg.payload() instanceof X509Certificate cert) {
+                    var attestationType = CryptoTools.getAttestationFromCertificate(cert);
+                    accessCertificate.put(attestationType, cert);
+
+                }
+            }
+
+
+
+        }
+
 
     }
 

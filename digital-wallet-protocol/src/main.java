@@ -41,34 +41,54 @@ public class main {
         mailboxes.put("ACA", new LinkedBlockingQueue<>());
         mailboxes.put("TLP", new LinkedBlockingQueue<>());
 
+        ArrayList<Entity> trustEntities = new ArrayList<>();
+
+        Registrar registrar = new Registrar(mailboxes.get("Registrar"), router);
+        AccessCertificateAuthority ACA = new AccessCertificateAuthority(mailboxes.get("ACA"), router);
+        TrustedListProvider TLP = new TrustedListProvider(mailboxes.get("TLP"), router);
+
+
+        // add to list in order to start a thread for all entities in a loop
+        trustEntities.add(registrar);
+        trustEntities.add(ACA);
+        trustEntities.add(TLP);
+
+        // starting threads and then sending a starting message to kick the system off
+        for (Entity entity : trustEntities) {
+            new Thread(entity).start();
+        }
+
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Starting the system");
+        router.route(new Message<>("System", registrar.getName(), MessageType.START, ""));
+        try {
+            System.out.println("Sleep start");
+            Thread.sleep(1000);
+            System.out.println("Sleep end");
+        } catch (InterruptedException _) {}
+        System.out.println("-----------------------------------------");
+
+
+        ArrayList<Entity> entityArraysList = new ArrayList<>();
+
         mailboxes.put("Issuer1", new LinkedBlockingQueue<>());
         mailboxes.put("Issuer2", new LinkedBlockingQueue<>());
         mailboxes.put("Verifier1", new LinkedBlockingQueue<>());
         mailboxes.put("Verifier2", new LinkedBlockingQueue<>());
         mailboxes.put("Holder1", new LinkedBlockingQueue<>());
 
-
         // create entities
         System.out.println("\n-----------------------------------------");
         System.out.println("Creating entities");
 
-        ArrayList<Entity> entityArraysList = new ArrayList<>();
 
-        Registrar registrar = new Registrar(mailboxes.get("Registrar"), router);
-        AccessCertificateAuthority ACA = new AccessCertificateAuthority(mailboxes.get("ACA"), router);
-        TrustedListProvider TLP = new TrustedListProvider(mailboxes.get("TLP"), router);
 
         Issuer issuer1 = new Issuer("Issuer1", mailboxes.get("Issuer1"), router);
-        Issuer issuer2 = new Issuer("Issuer1", mailboxes.get("Issuer1"), router);
+        Issuer issuer2 = new Issuer("Issuer2", mailboxes.get("Issuer2"), router);
         Verifier verifier1 = new Verifier("Verifier1", mailboxes.get("Verifier1"), router);
         Verifier verifier2 = new Verifier("Verifier2", mailboxes.get("Verifier2"), router);
         Holder holder1 = new Holder("Holder1", mailboxes.get("Holder1"), router);
 
-
-        // add to list in order to start a thread for all entities in a loop
-        entityArraysList.add(registrar);
-        entityArraysList.add(ACA);
-        entityArraysList.add(TLP);
 
         entityArraysList.add(issuer1);
         entityArraysList.add(issuer2);
@@ -82,10 +102,6 @@ public class main {
             new Thread(entity).start();
         }
 
-        System.out.println("\n-----------------------------------------");
-        System.out.println("Starting the system");
-        router.route(new Message<>("System", registrar.getName(), MessageType.START, ""));
-        System.out.println("-----------------------------------------");
     }
 
 /*

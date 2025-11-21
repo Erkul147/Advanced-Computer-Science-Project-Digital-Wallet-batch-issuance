@@ -22,7 +22,7 @@ public abstract class Entity implements Runnable{
         this.keyPair = CryptoTools.generateAsymmetricKeys();
         this.router = router;
         this.name = name;
-        System.out.println("Send public key to TLP");
+        System.out.println("Creating " + name + " Sending public key to TLP");
         router.route(new Message<>(name, "TLP", MessageType.RESPONSE_PUBLIC_KEY, getPublicKey()));
 
     }
@@ -45,7 +45,7 @@ public abstract class Entity implements Runnable{
     public void run() {
         try {
             while (true) {
-                System.out.println("inbox messages: " + inbox.size());
+                System.out.println(name + " inbox messages: " + inbox.size());
                 Message<?> msg = inbox.take();   // waits for a message
                 handle(msg);                  // process message
             }

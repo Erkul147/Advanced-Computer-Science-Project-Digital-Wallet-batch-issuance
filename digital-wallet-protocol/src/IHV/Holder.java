@@ -54,9 +54,8 @@ public class Holder extends Entity {
         System.out.println("        Using certificate to find the ID of the issuer and find the issuer in the fake EU trusted lists.");
         String name = Helper.GetName(certificate);
         Helper.verifyCertificate(certificate, attestationType);
-        var certPublicKey = TrustedListProvider.getTrustedIssuer(name).publicKey();
 
-        return CryptoTools.verifySignatureMessage(certPublicKey, root, signedRoot);
+        return false;
     }
 
     // step 5: present a VP
@@ -98,7 +97,7 @@ public class Holder extends Entity {
         TrustedIssuerData issuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(vc.providerCertificate()));
 
         // replace batch if list is empty
-        if (verifiableCredentials.isEmpty()) requestProof(vc.credentialType(), issuer.issuer());
+        //if (verifiableCredentials.isEmpty()) requestProof(vc.credentialType(), issuer.issuer());
 
         return vc;
     }

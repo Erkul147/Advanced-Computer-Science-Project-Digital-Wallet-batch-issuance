@@ -9,6 +9,7 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
+import Helper.CryptoTools;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
@@ -23,9 +24,6 @@ public class TrustedListProvider extends Entity {
     public static List<String> revocationList = new ArrayList<>();
     private static X509Certificate CACertificate;
 
-
-    public static Registrar  registrar;
-    public static AccessCertificateAuthority ACA;
 
     public TrustedListProvider(BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super("TLP", inbox, router);
@@ -50,22 +48,30 @@ public class TrustedListProvider extends Entity {
 
                 router.route(new Message<>("TLP", msg.from(), MessageType.RESPONSE_PUBLIC_KEY, key));
             }
+            case NOTIFY_TL -> {
+                if (msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
+                    System.out.println("Adding certificate to trusted list - " + ((X509Certificate) msg.payload()).getSubjectX500Principal().getName() );
+                    addTrustedIssuer(cert);
+
+                }
+            }
         }
     }
 
-    public static void addTrustedIssuer(String attestationType, Issuer issuer, X509Certificate cert) {
+    public static void addTrustedIssuer(X509Certificate cert) {
 
+        String issuerName = cert.getSubjectX500Principal().getName();
         // if issuer does not exist, create it and initialize an attestation map
-        boolean issuerExists = trustedIssuers.get(issuer.getName()) != null;
+        boolean issuerExists = trustedIssuers.get(issuerName) != null;
 
         if (!issuerExists) {
-            String ID = cert.getSerialNumber().toString();
-            TrustedIssuerData trustedIssuer = new TrustedIssuerData(ID, issuer, issuer.getName(), cert.getPublicKey(), new HashMap<>());
-            trustedIssuers.put(issuer.getName(), trustedIssuer);
+            HashMap<String, X509Certificate> certificateMap = new HashMap<>();
+            TrustedIssuerData trustedIssuer = new TrustedIssuerData(issuerName, certificateMap);
+            trustedIssuers.put(issuerName, trustedIssuer);
         }
 
         // add attestation to issuer's attestation map
-        trustedIssuers.get(issuer.getName()).certificateMap().put(attestationType, cert);
+        trustedIssuers.get(issuerName).certificateMap().put(CryptoTools.getAttestationFromCertificate(cert), cert);
 
         exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
@@ -102,7 +108,6 @@ public class TrustedListProvider extends Entity {
 
         for (TrustedIssuerData issuer : trustedIssuers.values()) {
             JSONObject trustedEntityJson = new JSONObject();
-            trustedEntityJson.put("id", issuer.ID());
             trustedEntityJson.put("name", issuer.name());
 
 

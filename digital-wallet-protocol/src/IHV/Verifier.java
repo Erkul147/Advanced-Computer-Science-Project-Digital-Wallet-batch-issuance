@@ -9,6 +9,7 @@ import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
+import Messaging.MessagingDataObjects.RegistrationData;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
@@ -28,18 +29,32 @@ public class Verifier extends Entity {
     // Will store every root from all verifiers. This is for unlinkability data.
 
     public String name;
-    public X509Certificate accessCertificate;
+    public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
 
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
         System.out.println("Verifier " + name + " created.");
-        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, "name:" + name + ",entityType:verifier,attestationType:citizencard" + ",attributes:a;b;c"));
+        var payload = new RegistrationData(name, "Verifier", "CitizenCard", new String[]{"a", "b", "c"}, getPublicKey());
+        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
+
     }
 
     @Override
     protected void handle(Message<?> msg) {
+        if (msg == null) return;
+        switch (msg.type()) {
+            case CERT_ISSUED -> {
+                if (msg.from().equals("Registrar") && msg.payload() instanceof X509Certificate cert) {
+                    var attestationType = CryptoTools.getAttestationFromCertificate(cert);
+                    accessCertificate.put(attestationType, cert);
 
+                }
+            }
+
+
+
+        }
     }
 
 

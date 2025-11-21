@@ -2,7 +2,9 @@ package Helper;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -51,6 +53,22 @@ public class CryptoTools {
        RANDOM.nextBytes(salt); // use random to randomize the byte array
        return salt;
     }
+
+    public static String convertPublicKeyToString(PublicKey publicKey) {
+        return Base64.getEncoder().encodeToString(publicKey.getEncoded());
+    }
+
+    public static PublicKey convertStringToPublicKey(String publicKeyString) {
+        byte[] decodePublicKey =  Base64.getDecoder().decode(publicKeyString);
+
+        try {
+            KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
+            return kf.generatePublic(new X509EncodedKeySpec(decodePublicKey));
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     // combine two byte arrays
     public static byte[] combineByteArrays(byte[] b1, byte[] b2) {

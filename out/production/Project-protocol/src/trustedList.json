@@ -1,17 +1,16 @@
 [{
     "x509certificate": {
-        "serialNumber": "1763080098906",
-        "subject": "CN=GovernmentBody0,OU=issuer,O=ProjectDemo",
+        "serialNumber": "1763746744308",
+        "subject": "CN=Verifier2,OU=CitizenCard,O=ProjectDemo",
         "publicKeyAlgorithm": "RSA",
         "publicKeyFormat": "X.509",
         "attestationType": "CitizenCard",
-        "validFrom": "Fri Nov 14 01:28:19 CET 2025",
-        "publicKey": "RSA Public Key [44:5a:a0:dd:87:77:9c:83:bf:36:2e:ba:35:3e:b4:68:b4:82:63:61],[56:66:d1:a4]\r\n        modulus: c1c26b5ed0873efbf2efb32cf40d2e94322d8b5a7b3c386c83d1aeb1c9c20e245bd4dd4d88f201d7b7657bd3df7f6ac04dd9d3fa3afe0c597c0a35c0b8d0a812bc74118a2cb1eaf413f39b4adcf5a920fdf25494560e27c9e96263487d594b5a8fcf3e10aecd6e4173daa88be73c1e97c847db560f0cba005c49a2c82147757f6c838e79e0328ff4ae755c09b5c5d418eb96b0c67e8e17e0d1c6b6e4d5c97b21e091285c8089a4798e09698b3a6e5c472b40499a2bfb8b92b0ba1f706e2d9cc4755b1e211cc4b97eccb3bce03a789a08eb0ab00b8063063dfc679196e99f567cc5b664478d38292bd08e76dca7ade9f42091a7a28ae8246d59efe71c4d4490d1\r\npublic exponent: 10001\r\n",
+        "validFrom": "Fri Nov 21 18:39:05 CET 2025",
+        "publicKey": "RSA Public Key [3a:7b:53:8e:43:2a:33:73:bf:e9:bd:e7:e9:d8:88:a6:b4:4a:68:6b],[56:66:d1:a4]\r\n        modulus: aee01a949ebd3318c9aa049b5ff775867f3143af392c437ac2e53c95e51b0b5e14672b1ac2296191a54fd3a8c55f17a2b01f8a5e4e5a0d54f0f920ca427becdee20af2575acdb1de467c9b8c7d3afe161633265ad108a5a703b7ccbb71f8f4b3625d186a67cfbbcf2506ec9485b89565a5c61118ed3ae51b325fe6ada47cd75e27f8df9da947bc08df5c135b480c3134d29662dc50b947b8b0da728dbda227df44068b8ab25dcdb5fac460b041cb1771feccf8662fdabc63c5992691c3fbb59adec68dea56e18004a4c499f1a259307fca4e234b5e6ea2c4349e9b7681125cfa5914fc35c987e6746b794002cccc63509f225f637bf8432c0cd9e457b2461749\r\npublic exponent: 10001\r\n",
         "version": 3,
         "issuer": "CN=Certificate Authority",
-        "validTo": "Sat Nov 14 01:28:19 CET 2026",
+        "validTo": "Sat Nov 21 18:39:05 CET 2026",
         "algorithm": "SHA256WITHRSA"
     },
-    "name": "GovernmentBody0",
-    "id": "1763080098906"
+    "name": "OU=CitizenCard"
 }]
