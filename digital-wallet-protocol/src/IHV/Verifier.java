@@ -6,6 +6,8 @@ import DataObjects.TrustedIssuerData;
 import Helper.CryptoTools;
 import DataObjects.VerifiablePresentation;
 import Helper.Helper;
+import Messaging.Message;
+import Messaging.MessageRouter;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
@@ -15,11 +17,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.BlockingQueue;
 
 public class Verifier extends Entity {
-    private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
-    private final PrivateKey privateKey = keyPair.getPrivate();
-    public final PublicKey publicKey = keyPair.getPublic();
 
     // RootsVerified acts as a database or a collection that store roots that are verified.
     // Will store every root from all verifiers. This is for unlinkability data.
@@ -28,9 +28,14 @@ public class Verifier extends Entity {
     public X509Certificate accessCertificate;
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
 
-    public Verifier(String name) {
-        super(name, "verifier");
-        System.out.println("    Verifier " + name + " created.");
+    public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super(name, inbox, router);
+        System.out.println("Verifier " + name + " created.");
+    }
+
+    @Override
+    protected void handle(Message<?> msg) {
+
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {

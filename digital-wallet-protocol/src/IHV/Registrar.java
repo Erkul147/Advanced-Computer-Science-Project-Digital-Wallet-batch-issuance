@@ -24,13 +24,14 @@ package IHV;
 
 import java.security.PublicKey;
 
-import Helper.CryptoTools;
-import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.BlockingQueue;
 
 import Helper.Helper;
+import Messaging.Message;
+import Messaging.MessageRouter;
+import Messaging.MessageType;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -47,33 +48,38 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 
 import javax.security.auth.x500.X500Principal;
 
+import static IHV.TrustedListProvider.ACA;
 
-public class Registrar {
-    // asymmetrical keypair specific to an issuer
-    private final KeyPair keyPair = CryptoTools.generateAsymmetricKeys();
-    private final PrivateKey privateKey = keyPair.getPrivate();
-    public final PublicKey publicKey = keyPair.getPublic();
 
-    private final X509Certificate certificate;
-    private final AccessCertificateAuthority ACA;
+public class Registrar extends Entity {
 
-    public Registrar() {
-        try {
-            System.out.println("    Creating trust anchor for Registrar");
-            certificate = createTrustAnchor();
-        } catch (CertificateException | OperatorCreationException e) {
-            throw new RuntimeException(e);
+    private X509Certificate certificate;
+
+    public Registrar(BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super("Registrar", inbox, router);
+
+    }
+
+    @Override
+    protected void handle(Message<?> msg) {
+        if (msg == null) return;
+        switch (msg.type()) {
+
+            case START -> {
+                try {
+                    System.out.println("Creating trust anchor for Registrar");
+                    certificate = createTrustAnchor();
+                    router.route(new Message<>(getName(), "TLP", MessageType.REQUEST_PUBLIC_KEY, "ACA"));
+                } catch (CertificateException | OperatorCreationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case RESPONSE_PUBLIC_KEY -> {
+                System.out.println("Got key");
+            }
+
+
         }
-
-        // create Access Certificate Authority (ACA): 1. Create keypair; Create CA certificate with the keypair; 3. Instantiate a new ACA
-        System.out.println("    Creating keypair and CA certificate for Access Certificate Authority");
-        KeyPair ACAKeyPair = CryptoTools.generateAsymmetricKeys();
-        X509Certificate CACertificate = createCACertificate(ACAKeyPair.getPublic());
-        ACA = new AccessCertificateAuthority(ACAKeyPair, CACertificate);
-        TrustedListProvider.setCACertificate(CACertificate);
-
-        System.out.println("    Adding ACA to the trusted list");
-        TrustedListProvider.ACA = ACA;
     }
 
     /*
@@ -130,7 +136,7 @@ public class Registrar {
             certBldr.addExtension(Extension.basicConstraints,true, new BasicConstraints(0))
                     .addExtension(Extension.keyUsage,true, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
-            ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(privateKey);
+            ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(getPrivateKey());
 
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 

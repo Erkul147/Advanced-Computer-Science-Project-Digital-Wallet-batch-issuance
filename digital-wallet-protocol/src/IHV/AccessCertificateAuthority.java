@@ -4,6 +4,8 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 
 import Helper.Helper;
+import Messaging.Message;
+import Messaging.MessageRouter;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.*;
@@ -19,23 +21,22 @@ import javax.security.auth.x500.X500Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.concurrent.BlockingQueue;
 
 
-public class AccessCertificateAuthority {
+public class AccessCertificateAuthority extends Entity {
 
     // asymmetrical keypair specific to an issuer
-    private final KeyPair keyPair;
     public X509Certificate CACertificate;
 
-    public AccessCertificateAuthority(KeyPair keyPair, X509Certificate CACertificate) {
-        this.keyPair = keyPair;
-        this.CACertificate = CACertificate;
+    public AccessCertificateAuthority(BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super("ACA", inbox, router);
     }
 
     public X509Certificate createAccessCertificate(String sigAlg, Entity entity, String attestationType, String[] attributesRequired) {
         System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
-                "CN=" + entity.getName() + ",OU=" + entity.getType() + ",O=ProjectDemo"
+                "CN=" + entity.getName() + ",OU=" + entity.getClass().getName() + ",O=ProjectDemo"
         );
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
@@ -80,4 +81,8 @@ public class AccessCertificateAuthority {
     }
 
 
+    @Override
+    protected void handle(Message<?> msg) {
+
+    }
 }

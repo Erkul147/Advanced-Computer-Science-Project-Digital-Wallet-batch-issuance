@@ -1,17 +1,17 @@
 [{
     "x509certificate": {
-        "serialNumber": "1763081336624",
+        "serialNumber": "1763088188032",
         "subject": "CN=GovernmentBody0,OU=issuer,O=ProjectDemo",
         "publicKeyAlgorithm": "RSA",
         "publicKeyFormat": "X.509",
         "attestationType": "CitizenCard",
-        "validFrom": "Fri Nov 14 01:48:57 CET 2025",
-        "publicKey": "RSA Public Key [ba:9c:0e:bc:f2:b1:a4:ee:39:04:e0:a8:14:77:3f:f0:81:63:05:b9],[56:66:d1:a4]\r\n        modulus: bb074faa390dd85ecd5b30175f705b919daad0db3424bcec1655f7122a766504b94a9afbfa51b8a4f0977e3cf918448657f36dff1d17b6683e6502a196096f30af6ac08f8276aeaa6a00e2db5b471970a87ce82b5b4c15003b58602cf61a10c1c5abadf5d3431b945a4e5c80d27cb6fce22d83721b82620ea5cb65f4b5d3b2e91e3e470f34294d76624dbf3ea1a406d20d83106379de0832941bf1b4905dbb30058dabdea4680e7375204222d6dc06197a88851bce8404944047ea4051fd690c8cdb7581678182699c82a0138cdf62dd1e89bfc51092474a9e2a331702f0da2ffd2c0cc78b7e762e8665b4a43dcad4e43b51e6892db8ae1f0e45bf14d18022dd\r\npublic exponent: 10001\r\n",
+        "validFrom": "Fri Nov 14 03:43:09 CET 2025",
+        "publicKey": "RSA Public Key [c8:f7:75:c6:81:7d:6e:a7:b1:ac:6c:5c:55:65:6e:0b:2d:77:47:9a],[56:66:d1:a4]\r\n        modulus: 9b08f06737508263806b9ea7f48c93fd440dc803aaef165b10b0ffce1c49aba01fc4e36dbd3fcbd843a34cb77195769140398e19647dc62333609542517319732abd50d3819df3cdf321d0ab7e9fa9c7d0619903c3db1303906308cf88d384dd9a2545410c9d93ce87d00cced8a0a719260b22c803a93964944f47660931091d2dd0ff36e216a21bf0476f12032d2eb5435987b12697e9c8c7ace7999e0fcad69a97beb2303c18ff6324410dd92f95b1259feb0cc8c721d0ec660ee99b5af85c0551d3927c68112f414796bb1f173b499fef4cb697a3ac1cd93e2e17a140dacdb8d9c56aa87962b64b4463610ec9f89e33adbaa2b56e341e5d49692638b1e39b\r\npublic exponent: 10001\r\n",
         "version": 3,
         "issuer": "CN=Certificate Authority",
-        "validTo": "Sat Nov 14 01:48:57 CET 2026",
+        "validTo": "Sat Nov 14 03:43:09 CET 2026",
         "algorithm": "SHA256WITHRSA"
     },
     "name": "GovernmentBody0",
-    "id": "1763081336624"
+    "id": "1763088188032"
 }]

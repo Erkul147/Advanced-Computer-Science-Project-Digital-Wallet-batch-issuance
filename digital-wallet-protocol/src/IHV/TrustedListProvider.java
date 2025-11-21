@@ -4,13 +4,21 @@ import DataObjects.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+
+import Messaging.Message;
+import Messaging.MessageRouter;
+import Messaging.MessageType;
 import org.json.*;
 
 
-public class TrustedListProvider {
 
+public class TrustedListProvider extends Entity {
+
+    private static final HashMap<String, PublicKey> publicKeys = new HashMap<>();
     private static final HashMap<String, TrustedIssuerData> trustedIssuers = new HashMap<>();
     public static List<String> revocationList = new ArrayList<>();
     private static X509Certificate CACertificate;
@@ -18,6 +26,32 @@ public class TrustedListProvider {
 
     public static Registrar  registrar;
     public static AccessCertificateAuthority ACA;
+
+    public TrustedListProvider(BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super("TLP", inbox, router);
+    }
+
+    @Override
+    protected void handle(Message<?> msg) {
+        System.out.println("\nhanlding message\n");
+        if (msg == null) return;
+        switch (msg.type()) {
+            case RESPONSE_PUBLIC_KEY -> {
+                System.out.println("Received public key from " + msg.from());
+                if (msg.payload() != null && msg.payload() instanceof PublicKey key) {
+                    publicKeys.put(msg.from(), key);
+                    System.out.println("Public key received and added to list: " + msg.from());
+                }
+            }
+            case REQUEST_PUBLIC_KEY -> {
+                PublicKey key = publicKeys.get(msg.from());
+                System.out.println("Public key requested");
+                if (key == null) router.route(new Message<>("TLP", msg.from(), MessageType.ERROR, "No public key found for: " + msg.from()));
+
+                router.route(new Message<>("TLP", msg.from(), MessageType.RESPONSE_PUBLIC_KEY, key));
+            }
+        }
+    }
 
     public static void addTrustedIssuer(String attestationType, Issuer issuer, X509Certificate cert) {
 

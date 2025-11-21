@@ -3,6 +3,8 @@ package IHV;
 import DataObjects.*;
 import Helper.CryptoTools;
 import Helper.Helper;
+import Messaging.Message;
+import Messaging.MessageRouter;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -10,16 +12,18 @@ import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 import static Helper.Helper.getAttributeNameFromAttestationTypeAndIndex;
 
-public class Holder {
+public class Holder extends Entity {
 
     // contains a map of proofs. Each proof type will have single key, containing a list of proofs from that type
     private Map<String, ArrayList<VerifiableCredential>> proofs = new HashMap<>();
     private final String ID; // acts as a wallet bound ID from a PID issuer
 
-    public Holder(String ID) {
+    public Holder(String ID, BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super(ID, inbox, router);
         this.ID = ID;
     }
 
@@ -100,5 +104,9 @@ public class Holder {
     }
 
 
+    @Override
+    protected void handle(Message<?> msg) {
+
+    }
 }
 

@@ -1,18 +1,96 @@
 import DataObjects.VerifiableCredential;
 import DataObjects.VerifiablePresentation;
+import Helper.CryptoTools;
 import IHV.*;
+import Messaging.Message;
+import Messaging.MessageRouter;
+import Messaging.MessageType;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.KeyPair;
 import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class main {
     
     public static void main(String[] args) {
+        // mailboxes for all entities on network
+        Map<String, BlockingQueue<Message<?>>> mailboxes = new HashMap<>();
+        MessageRouter router = new MessageRouter(mailboxes);
 
+        startSystem(mailboxes, router);
+
+
+    }
+
+    private static void startSystem(Map<String, BlockingQueue<Message<?>>> mailboxes, MessageRouter router) {
         // using bouncy castle, and adding it as the provider
         System.out.println("-----------------------------------------");
         System.out.println("Adding the security provider");
         Security.addProvider(new BouncyCastleProvider());
+
+
+        // create mailboxes
+        mailboxes.put("Registrar", new LinkedBlockingQueue<>());
+        mailboxes.put("ACA", new LinkedBlockingQueue<>());
+        mailboxes.put("TLP", new LinkedBlockingQueue<>());
+
+        mailboxes.put("Issuer1", new LinkedBlockingQueue<>());
+        mailboxes.put("Issuer2", new LinkedBlockingQueue<>());
+        mailboxes.put("Verifier1", new LinkedBlockingQueue<>());
+        mailboxes.put("Verifier2", new LinkedBlockingQueue<>());
+        mailboxes.put("Holder1", new LinkedBlockingQueue<>());
+
+
+        // create entities
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Creating entities");
+
+        ArrayList<Entity> entityArraysList = new ArrayList<>();
+
+        Registrar registrar = new Registrar(mailboxes.get("Registrar"), router);
+        AccessCertificateAuthority ACA = new AccessCertificateAuthority(mailboxes.get("ACA"), router);
+        TrustedListProvider TLP = new TrustedListProvider(mailboxes.get("TLP"), router);
+
+        Issuer issuer1 = new Issuer("Issuer1", mailboxes.get("Issuer1"), router);
+        Issuer issuer2 = new Issuer("Issuer1", mailboxes.get("Issuer1"), router);
+        Verifier verifier1 = new Verifier("Verifier1", mailboxes.get("Verifier1"), router);
+        Verifier verifier2 = new Verifier("Verifier2", mailboxes.get("Verifier2"), router);
+        Holder holder1 = new Holder("Holder1", mailboxes.get("Holder1"), router);
+
+
+        // add to list in order to start a thread for all entities in a loop
+        entityArraysList.add(registrar);
+        entityArraysList.add(ACA);
+        entityArraysList.add(TLP);
+
+        entityArraysList.add(issuer1);
+        entityArraysList.add(issuer2);
+        entityArraysList.add(verifier1);
+        entityArraysList.add(verifier2);
+        entityArraysList.add(holder1);
+
+
+        // starting threads and then sending a starting message to kick the system off
+        for (Entity entity : entityArraysList) {
+            new Thread(entity).start();
+        }
+
+        System.out.println("\n-----------------------------------------");
+        System.out.println("Starting the system");
+        router.route(new Message<>("System", registrar.getName(), MessageType.START, ""));
+        System.out.println("-----------------------------------------");
+    }
+
+/*
+
+    private static void old() {
 
         // creating Registrar and Access Certificate Authority
         System.out.println("-----------------------------------------");
@@ -63,21 +141,6 @@ public class main {
         verifiers[0].verifyMerkleTree(VP);
 
         System.out.println();
-
-
-
-        /*
-        System.out.println("Testing inclusion path of merkle trees and signature:");
-        testVerificationMerkleTree();
-        System.out.println();
-
-       System.out.println("Testing revocation:");
-        testRevocation();
-        System.out.println();
-
-        System.out.println("Testing authentication steps of hash list:");
-        testVerificationHashList();*/
-
     }
 
 
@@ -138,5 +201,7 @@ public class main {
 
     }
 
+
+ */
 
 }

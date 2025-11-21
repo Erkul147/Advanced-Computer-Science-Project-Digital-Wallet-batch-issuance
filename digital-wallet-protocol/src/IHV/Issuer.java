@@ -4,6 +4,8 @@ import CommitmentSchemes.MerkleTree;
 import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
+import Messaging.Message;
+import Messaging.MessageRouter;
 
 import java.security.*;
 import java.security.cert.X509Certificate;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 
 
 public class Issuer extends Entity {
@@ -22,9 +25,9 @@ public class Issuer extends Entity {
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
-    public Issuer(String name) {
-        super(name, "issuer");
-        System.out.println("    Issuer " + name + " created.");
+    public Issuer(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
+        super(name, inbox, router);
+        System.out.println("Issuer " + name + " created.");
     }
 
     public void requestAccessCertificate(String attestationType, String[] attributesRequest) {
@@ -84,4 +87,8 @@ public class Issuer extends Entity {
         return TrustedListProvider.addRevocation(attestationNo);
     }
 
+    @Override
+    protected void handle(Message<?> msg) {
+
+    }
 }
