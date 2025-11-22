@@ -54,6 +54,11 @@ public class Holder extends Entity {
                     attestations.put(CryptoTools.getAttestationFromCertificate(certificate), unverifiedProofs);
                 }
             }
+            case REQUEST_ATTESTATION -> {
+                if (msg.payload() instanceof String payload) {
+                    presentProof(payload, msg.from(), new int[]{1, 2, 3});
+                }
+            }
         }
     }
 
@@ -86,7 +91,7 @@ public class Holder extends Entity {
 
 
         VerifiablePresentation VP = new VerifiablePresentation(vc.metaData(), disclosedAttributes, vc.merkleTree().root,
-                vc.merkleTree().signedRoot, vc.metaData().issuerName(), vc.providerCertificate());
+                vc.merkleTree().signedRoot, vc.metaData().issuerName(), name, vc.providerCertificate());
 
         router.route(new Message<>(name, verifierName, PRESENT_PRESENTATION, VP));
     }

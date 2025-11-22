@@ -21,23 +21,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
-import static Messaging.MessageType.REQUEST_REGISTRATION;
+import static Messaging.MessageType.*;
 
 public class Verifier extends Entity {
 
     // RootsVerified acts as a database or a collection that store roots that are verified.
     // Will store every root from all verifiers. This is for unlinkability data.
 
-    public String name;
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
     public static HashMap<byte[], Integer> rootsVerified = new HashMap<>();
 
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
-        var payload = new RegistrationData(name, "Verifier", "CitizenCard", new String[]{"a", "b", "c"}, getPublicKey());
+        var payload = new RegistrationData(name, "Verifier", "CitizenCard", new String[]{"ID","lastname","givennames","dateofbirth"}, getPublicKey());
         router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
 
     }
+    private HashMap<String, VerifiablePresentation> toVerify = new HashMap<>();
 
     @Override
     protected void handle(Message<?> msg) {
@@ -51,12 +51,34 @@ public class Verifier extends Entity {
             }
             case PRESENT_PRESENTATION -> {
                 if (msg.payload() instanceof VerifiablePresentation VP) {
-                    verifyMerkleTree(VP);
+                    router.route(new Message<>(name, "TLP", VERIFY_CERT, VP));
+                    toVerify.put(msg.from(), VP);
                 }
             }
+
+            case ATTESTATION_VERIFIED -> {
+                if (msg.payload() instanceof VerifiablePresentation VP) {
+                    if (toVerify.containsKey(VP.subject())) {
+                        System.out.println("verifier has verified that attestation certificate comes from legit provider");
+                        toVerify.remove(VP.subject());
+
+                        var merkleProofVerified = verifyMerkleTree(VP);
+                        if (merkleProofVerified) {
+                            router.route(new Message<>(name, VP.subject(), ATTESTATION_VERIFIED, "access"));
+                        } else {
+                            router.route(new Message<>(name, VP.subject(), ERROR, "attestation not legit"));
+                        }
+                    }
+                }
+            }
+
+
         }
     }
 
+    public void requestAttestationFromUser(String userID, String attestationType) {
+        router.route(new Message<>(name, userID, REQUEST_ATTESTATION, attestationType));
+    }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
         System.out.println("Verifier: Verifying merkle proof");

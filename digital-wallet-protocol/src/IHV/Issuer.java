@@ -8,6 +8,7 @@ import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessagingDataObjects.RegistrationData;
 import Messaging.MessagingDataObjects.RequestAttestationsData;
+import Messaging.MessagingDataObjects.RevokeAttestationData;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -74,6 +75,11 @@ public abstract class Issuer extends Entity {
             System.err.println(e);
         }
         return null;
+    }
+
+    protected void revokeAttestation(String id, String attestationType) {
+        RevokeAttestationData payloadData = new RevokeAttestationData(name, accessCertificate.get(attestationType), id);
+        router.route(new Message<>(name, "TLP", REVOKE_ATTESTATION, payloadData));
     }
 
 }

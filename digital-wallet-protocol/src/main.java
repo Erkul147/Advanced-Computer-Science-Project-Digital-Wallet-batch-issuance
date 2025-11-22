@@ -109,6 +109,11 @@ public class main {
 
         System.out.println("\n-----------------------------------------");
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+
+
+        sleep(1);
+        System.out.println("\n-----------------------------------------");
+        verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
     }
     public static void sleep(int s) {
         try {

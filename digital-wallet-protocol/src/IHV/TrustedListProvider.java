@@ -16,10 +16,10 @@ import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
+import Messaging.MessagingDataObjects.RevokeAttestationData;
 import org.json.*;
 
-import static Messaging.MessageType.RESPONSE_PUBLIC_KEY;
-import static Messaging.MessageType.SEND_PUBLIC_KEY;
+import static Messaging.MessageType.*;
 
 
 public class TrustedListProvider extends Entity {
@@ -88,10 +88,42 @@ public class TrustedListProvider extends Entity {
 
                     PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(cert, chain);
                     // verified
-                    System.out.println("cert path");
-                    System.out.println(certPath.getCertPath());
 
-                    router.route(new Message<>(name, msg.from(), MessageType.ATTESTATION_VERIFIED, cert));
+                    System.out.println("cert good");
+                    router.route(new Message<>(name, msg.from(), ATTESTATION_VERIFIED, cert));
+                }
+
+                if (msg.payload() instanceof VerifiablePresentation VP) {
+
+                    var chain = new HashSet<X509Certificate>();
+                    chain.add(trustAnchor);
+                    chain.add(CACertificate);
+
+                    PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(VP.providerCertificate(), chain);
+                    // verified
+
+                    var proofRevoked = isProofRevoked(VP.md().ID());
+                    if (proofRevoked) {
+                        router.route(new Message<>(name, msg.from(), ERROR, "Not revoked"));
+                        return;
+                    }
+
+                    System.out.println("VP good");
+                    router.route(new Message<>(name, msg.from(), ATTESTATION_VERIFIED, VP));
+                }
+            }
+
+            case REVOKE_ATTESTATION -> {
+                if (msg.payload() instanceof RevokeAttestationData payload) {
+
+                    // chain of certificates
+                    var chain = new HashSet<X509Certificate>();
+                    chain.add(trustAnchor);
+                    chain.add(CACertificate);
+                    PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(payload.attestationCertificate(), chain);
+                    // verified
+
+                    addRevocation(payload.attestationID());
                 }
             }
         }
@@ -115,14 +147,13 @@ public class TrustedListProvider extends Entity {
         exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
 
-    public static boolean addRevocation(String attestationNo) {
+    public static void addRevocation(String attestationNo) {
         if (revocationList.contains(attestationNo)) {
             System.out.println("Revocation already exists");
-            return false;
+            return;
         }
         System.out.println("Revocation added - "  + attestationNo);
         revocationList.add(attestationNo);
-        return true;
     }
 
 
