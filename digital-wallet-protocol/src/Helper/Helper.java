@@ -79,6 +79,7 @@ public class Helper {
 
         // Create TrustAnchor set
         Set<TrustAnchor> trustAnchors = new HashSet<>();
+
         for (X509Certificate root : rootCerts) {
             trustAnchors.add(new TrustAnchor(root, null));
         }

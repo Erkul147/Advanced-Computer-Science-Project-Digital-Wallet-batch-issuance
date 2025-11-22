@@ -11,6 +11,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.concurrent.BlockingQueue;
 
+import static Messaging.MessageType.SEND_PUBLIC_KEY;
+
 public abstract class Entity implements Runnable{
     protected KeyPair keyPair;
 
@@ -23,7 +25,7 @@ public abstract class Entity implements Runnable{
         this.keyPair = CryptoTools.generateAsymmetricKeys();
         this.router = router;
         this.name = name;
-        router.route(new Message<>(name, "TLP", MessageType.RESPONSE_PUBLIC_KEY, getPublicKey()));
+        router.route(new Message<>(name, "TLP", SEND_PUBLIC_KEY, getPublicKey()));
 
     }
 

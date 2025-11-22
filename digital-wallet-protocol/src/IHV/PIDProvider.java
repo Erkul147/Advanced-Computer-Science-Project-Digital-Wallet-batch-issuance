@@ -1,7 +1,5 @@
 package IHV;
 
-import CommitmentSchemes.MerkleTree;
-import DataObjects.MetaData;
 import DataObjects.VerifiableCredential;
 import Helper.CryptoTools;
 import Messaging.Message;
@@ -10,10 +8,8 @@ import Messaging.MessagingDataObjects.RegistrationData;
 import Messaging.MessagingDataObjects.RequestAttestationsData;
 
 import java.security.cert.X509Certificate;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
 import static Messaging.MessageType.ATTESTATION_ISSUED;
@@ -56,8 +52,9 @@ public class PIDProvider extends Issuer {
             return null;
         }
         System.out.println("Issuer: Checking if the user has officially registered data.");
+
         // fake attributes
-        String[] attributes = AuthenticSource.getPID(ID);
+        String[] attributes = getPID(ID);
 
         if (attributes == null) return null;
         System.out.println("        Data has been found.");
@@ -65,4 +62,6 @@ public class PIDProvider extends Issuer {
 
         return createBatchesOfMerkleTrees(attributes, attestationType);
     }
+
+
 }

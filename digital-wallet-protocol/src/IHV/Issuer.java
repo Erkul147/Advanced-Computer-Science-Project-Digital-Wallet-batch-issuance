@@ -9,6 +9,8 @@ import Messaging.MessageRouter;
 import Messaging.MessagingDataObjects.RegistrationData;
 import Messaging.MessagingDataObjects.RequestAttestationsData;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -55,6 +57,23 @@ public abstract class Issuer extends Entity {
         System.out.println("    " + BATCHSIZE + " new attestations created.");
 
         return verifiableCredentials;
+    }
+
+    protected String[] getPID(String ID) {
+        try {
+            // create buffered reader that reads the csv
+            BufferedReader br = new BufferedReader(new FileReader("digital-wallet-protocol/src/attributes.csv"));
+
+            // fake query: find id
+            for (String line = br.readLine(); line != null; line = br.readLine() ) {
+                if  (line.contains(ID)) {
+                    return line.split(",");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
     }
 
 }

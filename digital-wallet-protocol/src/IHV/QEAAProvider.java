@@ -47,7 +47,7 @@ public class QEAAProvider extends Issuer {
 
     private ArrayList<VerifiableCredential> sendAttestations(String attestationType, String ID) {
         // contact authentic source to obtain data
-        String[] PID = AuthenticSource.getPID(ID);
+        String[] PID = getPID(ID);
         if (PID == null) return null;
         int[] ages = new int[] {16, 18, 21, 23};
         String[] attributes = new String[ages.length];
@@ -55,7 +55,6 @@ public class QEAAProvider extends Issuer {
         for (int i = 0; i < ages.length; i++) {
             attributes[i] = ages[i] + "," + PID[3];
         }
-
 
         if (attestationType.equals("AgeProof")) return null;
 

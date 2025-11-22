@@ -19,6 +19,7 @@ import Messaging.MessageType;
 import org.json.*;
 
 import static Messaging.MessageType.RESPONSE_PUBLIC_KEY;
+import static Messaging.MessageType.SEND_PUBLIC_KEY;
 
 
 public class TrustedListProvider extends Entity {
@@ -44,6 +45,13 @@ public class TrustedListProvider extends Entity {
                     publicKeys.put(msg.from(), key);
                 }
             }
+
+            case SEND_PUBLIC_KEY -> {
+                if (msg.payload() != null && msg.payload() instanceof PublicKey key) {
+                    publicKeys.put(msg.from(), key);
+                }
+            }
+
             case REQUEST_PUBLIC_KEY -> {
                 if (msg.payload() != null && msg.payload() instanceof String payloadName) {
                     PublicKey key = publicKeys.get(payloadName);
@@ -53,11 +61,13 @@ public class TrustedListProvider extends Entity {
                 router.route(new Message<>("TLP", msg.from(), MessageType.ERROR, "No public key found for: " + msg.from()));
 
             }
+
             case NOTIFY_TL -> {
                 if (msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
                     addTrustedIssuer(cert);
                 }
             }
+
             case NOTIFY_TL_TA -> {
                 if (msg.from().equals("Registrar") && msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
                     trustAnchor = cert;
@@ -78,6 +88,8 @@ public class TrustedListProvider extends Entity {
 
                     PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(cert, chain);
                     // verified
+                    System.out.println("cert path");
+                    System.out.println(certPath.getCertPath());
 
                     router.route(new Message<>(name, msg.from(), MessageType.ATTESTATION_VERIFIED, cert));
                 }
