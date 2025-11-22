@@ -34,7 +34,6 @@ public class Verifier extends Entity {
 
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
-        System.out.println("Verifier " + name + " created.");
         var payload = new RegistrationData(name, "Verifier", "CitizenCard", new String[]{"a", "b", "c"}, getPublicKey());
         router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
 
@@ -48,25 +47,19 @@ public class Verifier extends Entity {
                 if (msg.from().equals("Registrar") && msg.payload() instanceof X509Certificate cert) {
                     var attestationType = CryptoTools.getAttestationFromCertificate(cert);
                     accessCertificate.put(attestationType, cert);
-
                 }
             }
-
-
-
+            case PRESENT_PRESENTATION -> {
+                if (msg.payload() instanceof VerifiablePresentation VP) {
+                    verifyMerkleTree(VP);
+                }
+            }
         }
     }
 
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
-        System.out.println("    Verifier: Verifying certificate");
-        if (!Helper.verifyCertificate(presentation.providerCertificate(), presentation.md().attestationType())) {
-            System.out.println("        Invalid attestation type");
-            return false;
-        }
-        System.out.println("    Certificate verified\n");
-
-        if (TrustedListProvider.isProofRevoked(presentation.md().ID())) return false;
+        System.out.println("Verifier: Verifying merkle proof");
 
         // verify all disclosed attributes
         DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes();
@@ -78,14 +71,14 @@ public class Verifier extends Entity {
 
         if (disclosedAttributes == null || disclosedAttributes.length == 0) return false;
         for (int i = 0; i < disclosedAttributes.length; i++) {
-            System.out.println("\n  Following Merkle tree inclusion path:");
+            System.out.println("    Following Merkle tree inclusion path:");
 
             DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes()[i];
             InclusionPath path = disclosedAttribute.inclusionPath;
 
 
-            System.out.println("      disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
-            System.out.println("      disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
+            System.out.println("        disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
+            System.out.println("        disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
 
 
             // hashing disclosed attribute with salt
@@ -100,7 +93,8 @@ public class Verifier extends Entity {
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(j), hash)) :
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(j)));
             }
-            System.out.println("    root's hash computed: " + CryptoTools.printHash(hash));
+            System.out.println("        root's hash computed: " + CryptoTools.printHash(hash));
+            System.out.println();
             hashesComputed.add(hash);
 
 
@@ -110,9 +104,7 @@ public class Verifier extends Entity {
 
             finalHash = hash;
         }
-        System.out.println("All paths lead to the same root");
-
-        System.out.println("\nsigned root: " + CryptoTools.printHash(signedRoot));
+        System.out.println("    signed root: " + CryptoTools.printHash(signedRoot));
 
         // use computed root, the given signed root and the public key from the certificate provided which is a known issuer
         // to verify if the attribute and salt was a part of the root

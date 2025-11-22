@@ -4,17 +4,21 @@ import DataObjects.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.security.cert.PKIXCertPathBuilderResult;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 import Helper.CryptoTools;
+import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
 import org.json.*;
 
+import static Messaging.MessageType.RESPONSE_PUBLIC_KEY;
 
 
 public class TrustedListProvider extends Entity {
@@ -23,6 +27,7 @@ public class TrustedListProvider extends Entity {
     private static final HashMap<String, TrustedIssuerData> trustedIssuers = new HashMap<>();
     public static List<String> revocationList = new ArrayList<>();
     private static X509Certificate CACertificate;
+    private static X509Certificate trustAnchor;
 
 
     public TrustedListProvider(BlockingQueue<Message<?>> inbox, MessageRouter router) {
@@ -30,29 +35,51 @@ public class TrustedListProvider extends Entity {
     }
 
     @Override
-    protected void handle(Message<?> msg) {
-        System.out.println("\nhanlding message\n");
+    protected void handle(Message<?> msg) throws GeneralSecurityException {
+
         if (msg == null) return;
         switch (msg.type()) {
             case RESPONSE_PUBLIC_KEY -> {
-                System.out.println("Received public key from " + msg.from());
                 if (msg.payload() != null && msg.payload() instanceof PublicKey key) {
                     publicKeys.put(msg.from(), key);
-                    System.out.println("Public key received and added to list: " + msg.from());
                 }
             }
             case REQUEST_PUBLIC_KEY -> {
-                PublicKey key = publicKeys.get(msg.from());
-                System.out.println("Public key requested");
-                if (key == null) router.route(new Message<>("TLP", msg.from(), MessageType.ERROR, "No public key found for: " + msg.from()));
+                if (msg.payload() != null && msg.payload() instanceof String payloadName) {
+                    PublicKey key = publicKeys.get(payloadName);
+                    router.route(new Message<>("TLP", msg.from(), RESPONSE_PUBLIC_KEY, key));
+                    break;
+                }
+                router.route(new Message<>("TLP", msg.from(), MessageType.ERROR, "No public key found for: " + msg.from()));
 
-                router.route(new Message<>("TLP", msg.from(), MessageType.RESPONSE_PUBLIC_KEY, key));
             }
             case NOTIFY_TL -> {
                 if (msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
-                    System.out.println("Adding certificate to trusted list - " + ((X509Certificate) msg.payload()).getSubjectX500Principal().getName() );
                     addTrustedIssuer(cert);
+                }
+            }
+            case NOTIFY_TL_TA -> {
+                if (msg.from().equals("Registrar") && msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
+                    trustAnchor = cert;
+                }
+            }
+            case NOTIFY_TL_CA -> {
+                if (msg.from().equals("Registrar") && msg.payload() != null && msg.payload() instanceof X509Certificate cert) {
+                    CACertificate = cert;
+                }
+            }
 
+            case VERIFY_CERT -> {
+                if (msg.payload() instanceof X509Certificate cert) {
+
+                    var chain = new HashSet<X509Certificate>();
+                    chain.add(trustAnchor);
+                    chain.add(CACertificate);
+
+                    PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(cert, chain);
+                    // verified
+
+                    router.route(new Message<>(name, msg.from(), MessageType.ATTESTATION_VERIFIED, cert));
                 }
             }
         }
@@ -76,11 +103,6 @@ public class TrustedListProvider extends Entity {
         exportTrustedListToJson("digital-wallet-protocol/src/trustedList.json");
     }
 
-
-    public static TrustedIssuerData getTrustedIssuer(String name) {
-        return trustedIssuers.get(name);
-    }
-
     public static boolean addRevocation(String attestationNo) {
         if (revocationList.contains(attestationNo)) {
             System.out.println("Revocation already exists");
@@ -91,18 +113,13 @@ public class TrustedListProvider extends Entity {
         return true;
     }
 
-    public static X509Certificate getCACertificate() {
-        return CACertificate;
-    }
 
-    public static void setCACertificate(X509Certificate CACertificate) {
-        TrustedListProvider.CACertificate = CACertificate;
-    }
     public static boolean isProofRevoked(String attestationNo) {
         var isRevoked = revocationList.contains(attestationNo);
         if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
         return isRevoked;
     }
+
     public static void exportTrustedListToJson(String filename) {
         JSONArray jsonArray = new JSONArray();
 

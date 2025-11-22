@@ -32,16 +32,12 @@ import java.util.concurrent.BlockingQueue;
 import Helper.Helper;
 import Messaging.Message;
 import Messaging.MessageRouter;
-import Messaging.MessageType;
 import Messaging.MessagingDataObjects.RegistrationData;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.cert.CertIOException;
-import org.bouncycastle.cert.X509v1CertificateBuilder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509v1CertificateBuilder;
-import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.ContentSigner;
@@ -68,18 +64,18 @@ public class Registrar extends Entity {
         switch (msg.type()) {
 
             case START -> {
-                try {
-                    System.out.println("Creating trust anchor for Registrar");
-                    certificate = createTrustAnchor();
-                    router.route(new Message<>(getName(), "TLP", REQUEST_PUBLIC_KEY, "ACA"));
-                } catch (CertificateException | OperatorCreationException e) {
-                    throw new RuntimeException(e);
-                }
+                System.out.println("Creating trust anchor for Registrar");
+                certificate = createTrustAnchor();
+                router.route(new Message<>(getName(), "TLP", NOTIFY_TL_TA, certificate));
+
+                router.route(new Message<>(getName(), "TLP", REQUEST_PUBLIC_KEY, "ACA"));
             }
 
             case RESPONSE_PUBLIC_KEY -> {
                 if (msg.payload() instanceof PublicKey pk && msg.from().equals("TLP")) {
-                    router.route(new Message<>(name, "ACA", CERT_ISSUED, createCACertificate(pk)));
+                    var ca = createCACertificate(pk);
+                    router.route(new Message<>(name, "ACA", CERT_ISSUED, ca));
+                    router.route(new Message<>(name, "TLP", NOTIFY_TL_CA, ca));
                 }
             }
 
@@ -94,23 +90,8 @@ public class Registrar extends Entity {
         }
     }
 
-    /*
-    PUBLIC DATA:
-    For a Relying Party, the Registrar mainly registers which attributes the Relying Party intends to request from Wallet Units, and for what purpose.
-    The Registrar also registers if the Relying Party intends to use the services of an intermediary (see Section 3.11) to interact with Wallet Units, and if so, which one.
-     */
-
-
-
-    /*
-    createCACertificate:
-    When an entity registers, an access certificate is given to them, which is also saved in a trusted list
-
-    "Access Certificate Authorities are notified by a Member State to the Commission.
-    As part of the notification process, the trust anchors of the Access CA are included in a Trusted List by a Trusted List Provider"
-    */
     private X509Certificate createCACertificate(PublicKey certKey) {
-        X500Principal subject = new X500Principal("CN=Certificate Authority");
+        X500Principal subject = new X500Principal("CN=Certificate Authority, O=ProjectDemo");
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
                 certificate.getSubjectX500Principal(),
@@ -120,6 +101,8 @@ public class Registrar extends Entity {
                 subject,
                 certKey);
 
+        X509Certificate cert;
+
         try {
             certBldr.addExtension(Extension.basicConstraints,true, new BasicConstraints(0))
                     .addExtension(Extension.keyUsage,true, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
@@ -128,34 +111,46 @@ public class Registrar extends Entity {
 
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 
-            return converter.getCertificate(certBldr.build(signer));
+            cert = converter.getCertificate(certBldr.build(signer));
         } catch (CertificateException | OperatorCreationException | CertIOException e) {
             throw new RuntimeException(e);
         }
+
+        return cert;
     }
 
 
-    private X509Certificate createTrustAnchor()
-            throws OperatorCreationException, CertificateException
-    {
-        X500Name name = new X500Name("CN=Trust Anchor");
+    private X509Certificate createTrustAnchor() {
 
-        // using x509 v1 certificate as a trust anchor, it is self-signed and must be trusted at face value
-        X509v1CertificateBuilder certBldr = new JcaX509v1CertificateBuilder(
-                name,
+        X500Principal subject = new X500Principal("CN=Trust Anchor, O=ProjectDemo");
+        X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
+                subject, // issuer
                 Helper.calculateSerialNumber(),
                 Helper.calculateDate(0),
                 Helper.calculateDate(24 * 365),
-                name,
-                keyPair.getPublic());
+                subject, // subject
+                getPublicKey()
+        );
+        X509Certificate cert;
+        try {
+            // This marks it as a ROOT CA
+            certBldr.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+            certBldr.addExtension(Extension.keyUsage, true,
+                    new KeyUsage(KeyUsage.keyCertSign | KeyUsage.cRLSign));
 
-        // self-signing: using own private key to sign certificate that has own public key
-        ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA")
-                .setProvider("BC").build(keyPair.getPrivate());
+            ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA")
+                    .setProvider("BC").build(getPrivateKey());
 
-        JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
+            JcaX509CertificateConverter converter = new JcaX509CertificateConverter()
+                    .setProvider("BC");
 
-        return converter.getCertificate(certBldr.build(signer));
+            cert = converter.getCertificate(certBldr.build(signer));
+        } catch (OperatorCreationException | CertificateException | CertIOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return cert;
+
     }
 
 }

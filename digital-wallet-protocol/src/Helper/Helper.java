@@ -4,10 +4,13 @@ import DataObjects.TrustedIssuerData;
 import IHV.TrustedListProvider;
 
 import java.math.BigInteger;
-import java.security.cert.X509Certificate;
+import java.security.*;
+import java.security.cert.*;
 import java.time.chrono.MinguoDate;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Helper {
     private static long serialNumberBase = System.currentTimeMillis(); // used to make a serial number
@@ -20,43 +23,6 @@ public class Helper {
         put("AgeProof", new String[] {"age"});
     }};
 
-    public static boolean verifyCertificate(X509Certificate certificate, String attestationType) {
-        System.out.println("    Finding issuer data from fake EU trusted lists. Issuer name from certificate: " + Helper.GetName(certificate));
-        TrustedIssuerData trustedIssuer = TrustedListProvider.getTrustedIssuer(Helper.GetName(certificate));
-
-        // Check if entity exists
-        if (trustedIssuer == null) {
-            System.out.println("    Certificate not found in trusted entities.");
-            return false;
-        }
-
-        String fromCertificateAttestation = CryptoTools.getAttestationFromCertificate(certificate);
-
-
-        System.out.println("    Attestation type received from holder: " + attestationType);
-        System.out.println("    Attestation type obtained from the trusted list: " + fromCertificateAttestation);
-
-
-
-        X509Certificate trustedCert = trustedIssuer.certificateMap().get(attestationType);
-
-        if (trustedCert != null &&
-                trustedCert.getPublicKey().equals(certificate.getPublicKey()) &&
-                trustedCert.getSerialNumber().equals(certificate.getSerialNumber()) &&
-                trustedCert.getIssuerX500Principal().equals(certificate.getIssuerX500Principal())) {
-            try {
-                // built in method to check if certificate is valid
-                System.out.println("        Checking certificate: public key, id and name verified.");
-                certificate.checkValidity();
-                return true; // certificate is trusted and valid
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        System.out.println("    Certificate verification failed");
-        return false; // Not valid
-    }
 
     // helpers
     public static Date calculateDate(int hoursInFuture)
@@ -77,5 +43,67 @@ public class Helper {
 
     public static String getAttributeNameFromAttestationTypeAndIndex(String attestationType, int index) {
         return attestationTypeAttributeNames.get(attestationType)[index];
+    }
+
+
+
+    public static boolean isSelfSigned(X509Certificate cert) {
+        return cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal());
+    }
+
+
+    public static PKIXCertPathBuilderResult buildAndVerifyChain(
+            X509Certificate cert,
+            Set<X509Certificate> additionalCerts) throws GeneralSecurityException {
+
+        if (isSelfSigned(cert)) {
+            throw new CertificateException("Leaf certificate cannot be self-signed");
+        }
+
+        // Separate roots and intermediates
+        Set<X509Certificate> rootCerts = new HashSet<>();
+        Set<X509Certificate> intermediateCerts = new HashSet<>();
+
+        for (X509Certificate c : additionalCerts) {
+            boolean selfSigned = isSelfSigned(c);
+            if (selfSigned) {
+                rootCerts.add(c);
+            } else {
+                intermediateCerts.add(c);
+            }
+        }
+
+        if (rootCerts.isEmpty()) {
+            throw new CertificateException("No root certificates found in additionalCerts");
+        }
+
+        // Create TrustAnchor set
+        Set<TrustAnchor> trustAnchors = new HashSet<>();
+        for (X509Certificate root : rootCerts) {
+            trustAnchors.add(new TrustAnchor(root, null));
+        }
+
+        Set<X509Certificate> allCertsForStore = new HashSet<>(intermediateCerts);
+        allCertsForStore.add(cert);
+
+
+        CertStore intermediateStore = CertStore.getInstance(
+                "Collection",
+                new CollectionCertStoreParameters(allCertsForStore)
+        );
+
+        // Setup selector for leaf cert
+        X509CertSelector selector = new X509CertSelector();
+        selector.setCertificate(cert);
+
+        // PKIX parameters
+        PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(trustAnchors, selector);
+        pkixParams.addCertStore(intermediateStore);
+        pkixParams.setRevocationEnabled(false);
+
+        // Build path
+        CertPathBuilder builder = CertPathBuilder.getInstance("PKIX", "BC");
+
+        return (PKIXCertPathBuilderResult) builder.build(pkixParams);
     }
 }

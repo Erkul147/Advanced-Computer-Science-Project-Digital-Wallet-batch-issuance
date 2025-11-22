@@ -50,15 +50,11 @@ public class AccessCertificateAuthority extends Entity {
                     var certificate = createAccessCertificate("SHA256withRSA", payload.entityName(), payload.attestationType(), payload.attributes(), payload.publicKey());
                     router.route(new Message<>(name, payload.entityName(), CERT_ISSUED, certificate));
                     router.route(new Message<>(name, "TLP" , NOTIFY_TL, certificate));
-
-
                 }
             }
-
-
         }
-
     }
+
     public X509Certificate createAccessCertificate(String sigAlg, String entityName, String attestationType, String[] attributesRequired, PublicKey publicKey) {
         System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
@@ -83,7 +79,7 @@ public class AccessCertificateAuthority extends Entity {
             certBldr.addExtension(myOID, false, new DEROctetString(attestationTypeBytes));
 
             ContentSigner signer = new JcaContentSignerBuilder(sigAlg)
-                    .setProvider("BC").build(keyPair.getPrivate());
+                    .setProvider("BC").build(getPrivateKey());
 
             JcaX509CertificateConverter converter = new JcaX509CertificateConverter().setProvider("BC");
 

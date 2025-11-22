@@ -5,6 +5,7 @@ import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
 
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -22,7 +23,6 @@ public abstract class Entity implements Runnable{
         this.keyPair = CryptoTools.generateAsymmetricKeys();
         this.router = router;
         this.name = name;
-        System.out.println("Creating " + name + " Sending public key to TLP");
         router.route(new Message<>(name, "TLP", MessageType.RESPONSE_PUBLIC_KEY, getPublicKey()));
 
     }
@@ -39,18 +39,20 @@ public abstract class Entity implements Runnable{
         return keyPair.getPublic();
     }
 
-    protected abstract void handle(Message<?> msg);
+    protected abstract void handle(Message<?> msg) throws GeneralSecurityException;
 
     @Override
     public void run() {
         try {
             while (true) {
-                System.out.println(name + " inbox messages: " + inbox.size());
+                // System.out.println(name + " inbox messages: " + inbox.size());
                 Message<?> msg = inbox.take();   // waits for a message
                 handle(msg);                  // process message
             }
         } catch (InterruptedException e) {
             System.out.println(name + " stopped.");
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
         }
     }
 }

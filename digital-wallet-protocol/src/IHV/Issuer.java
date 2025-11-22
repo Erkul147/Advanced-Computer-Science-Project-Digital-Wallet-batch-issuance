@@ -7,6 +7,7 @@ import Helper.CryptoTools;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessagingDataObjects.RegistrationData;
+import Messaging.MessagingDataObjects.RequestAttestationsData;
 
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
@@ -19,72 +20,33 @@ import java.util.concurrent.BlockingQueue;
 import static Messaging.MessageType.*;
 
 
-public class Issuer extends Entity {
+public abstract class Issuer extends Entity {
     public final String country = "Denmark";
 
     // size of proof batches
-    private final int BATCHSIZE = 30;
+    protected final int BATCHSIZE = 30;
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
     public Issuer(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
-        System.out.println("Issuer " + name + " created.");
-        var payload = new RegistrationData(name, "Issuer", "CitizenCard", new String[]{"a", "b", "c"}, getPublicKey());
-        router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
-    }
-
-    @Override
-    protected void handle(Message<?> msg) {
-        if (msg == null) return;
-        switch (msg.type()) {
-            case CERT_ISSUED -> {
-                if (msg.from().equals("Registrar") && msg.payload() instanceof X509Certificate cert) {
-                    var attestationType = CryptoTools.getAttestationFromCertificate(cert);
-                    accessCertificate.put(attestationType, cert);
-
-                }
-            }
-
-
-
-        }
-
 
     }
 
-    // step 3: send proofs to user
-    private ArrayList<VerifiableCredential> sendAttestations(String attestationType, String ID) {
-        // list to store proofs (use almost like a stack)
+    protected ArrayList<VerifiableCredential> createBatchesOfMerkleTrees(String[] attributes, String attestationType) {
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
-
-        if (!Objects.equals(attestationType, "CitizenCard")) {
-            System.out.println("Attestation type not supported: " + attestationType);
-            return null;
-        }
-        System.out.println("    Issuer: Checking if the user has officially registered data.");
-        // fake attributes
-        String[] attributes = AuthenticSource.getPID(ID);
-
-        if (attributes == null) return null;
-        System.out.println("        Data has been found.");
-
-        System.out.println("    Creating merkle tree attestations for " + attestationType + ".");
-        String[] type = new String[]{"VerifiableCredential", attestationType};
-
         // create all attestation
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
-            MetaData metaData = new MetaData(UUID.randomUUID().toString(), getName(), country, type.clone(), "1-1-2030", attestationType, new Timestamp(System.currentTimeMillis()), "RSA");
+            MetaData metaData = new MetaData(UUID.randomUUID().toString(), getName(), country, "1-1-2030", attestationType, new Timestamp(System.currentTimeMillis()), "RSA");
 
             // create the payload
             MerkleTree tree = new MerkleTree(attributes);
 
 
             // signature of the root
-            byte[] sign = CryptoTools.signMessage(getPrivateKey(), tree.root.hash);
-            tree.signedRoot = sign;
+            tree.signedRoot = CryptoTools.signMessage(getPrivateKey(), tree.root.hash);
 
             // add the proof the to list
             verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, this, accessCertificate.get(attestationType)));
@@ -94,15 +56,5 @@ public class Issuer extends Entity {
 
         return verifiableCredentials;
     }
-
-    // used to imitate a request, there should be some authentication process of some kind
-    public ArrayList<VerifiableCredential> requestProof(String proofName, String ID) {
-        return sendAttestations(proofName, ID);
-    }
-
-    public boolean revokeAttestation(String attestationNo) {
-        return TrustedListProvider.addRevocation(attestationNo);
-    }
-
 
 }

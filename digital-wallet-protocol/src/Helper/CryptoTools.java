@@ -123,9 +123,10 @@ public class CryptoTools {
 
     public static String printHash(byte[] hash) {
         StringBuilder hex = new StringBuilder();
-        for (byte b : hash) {
-            hex.append(String.format("%02x", b & 0xff));
+        for (int i = 0; i < 5; i++) {
+            hex.append(String.format("%02x", hash[i] & 0xff));
         }
+        hex.append("...");
         return hex.toString();
     }
 }
