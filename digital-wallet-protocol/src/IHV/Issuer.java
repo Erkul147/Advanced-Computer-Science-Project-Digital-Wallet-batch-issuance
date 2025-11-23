@@ -27,7 +27,7 @@ public abstract class Issuer extends Entity {
     public final String country = "Denmark";
 
     // size of proof batches
-    protected final int BATCHSIZE = 30;
+    public static boolean batchIssuance = false;
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
@@ -39,6 +39,13 @@ public abstract class Issuer extends Entity {
     protected ArrayList<VerifiableCredential> createBatchesOfMerkleTrees(String[] attributes, String attestationType) {
         ArrayList<VerifiableCredential> verifiableCredentials = new ArrayList<>();
         // create all attestation
+
+
+        int BATCHSIZE = (batchIssuance) ? 30 : 1;
+
+        var msg = (batchIssuance) ? "BATCH ISSUANCE ENABLED" : "BATCH ISSUANCE DISABLED";
+        System.out.println(msg);
+
         for (int i = 0; i < BATCHSIZE; i++) {
 
             // metadata
@@ -54,8 +61,8 @@ public abstract class Issuer extends Entity {
             // add the proof the to list
             verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, this, accessCertificate.get(attestationType)));
         }
-        System.out.println("        Last merkle tree's root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
-        System.out.println("    " + BATCHSIZE + " new attestations created.");
+        //System.out.println("        Last merkle tree's root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
+        //System.out.println("    " + BATCHSIZE + " new attestations created.");
 
         return verifiableCredentials;
     }

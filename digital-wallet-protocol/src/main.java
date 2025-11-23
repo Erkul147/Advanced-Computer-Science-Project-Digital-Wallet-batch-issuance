@@ -31,8 +31,8 @@ public class main {
 
     private static void startSystem(Map<String, BlockingQueue<Message<?>>> mailboxes, MessageRouter router) {
         // using bouncy castle, and adding it as the provider
-        System.out.println("-----------------------------------------");
-        System.out.println("Adding the security provider");
+        //System.out.println("-----------------------------------------");
+        //System.out.println("Adding the security provider");
         Security.addProvider(new BouncyCastleProvider());
 
 
@@ -58,15 +58,10 @@ public class main {
             new Thread(entity).start();
         }
 
-        System.out.println("\n-----------------------------------------");
-        System.out.println("Starting the system");
+        //System.out.println("\n-----------------------------------------");
+        //System.out.println("Starting the system");
         router.route(new Message<>("System", registrar.getName(), MessageType.START, ""));
-        try {
-            System.out.println("Sleep start");
-            Thread.sleep(1000);
-            System.out.println("Sleep end");
-        } catch (InterruptedException _) {}
-        System.out.println("-----------------------------------------");
+        sleep(1);
 
 
         ArrayList<Entity> entityArraysList = new ArrayList<>();
@@ -78,8 +73,8 @@ public class main {
         mailboxes.put("DK1234567", new LinkedBlockingQueue<>());
 
         // create entities
-        System.out.println("\n-----------------------------------------");
-        System.out.println("Creating entities");
+        //System.out.println("\n-----------------------------------------");
+        //System.out.println("Creating entities");
 
 
 
@@ -102,18 +97,27 @@ public class main {
             new Thread(entity).start();
         }
 
-        System.out.println("\n-----------------------------------------");
+        //System.out.println("\n-----------------------------------------");
         holder1.requestProof("CitizenCard", issuer1.getName());
-
         sleep(1);
-
-        System.out.println("\n-----------------------------------------");
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-
-
         sleep(1);
-        System.out.println("\n-----------------------------------------");
-        verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        verifier2.requestAttestationFromUser(holder1.getName(), "CitizenCard");
+        sleep(2);
+
+        Verifier.rootsVerified.toString();
+        Verifier.checkUnlinkability();
+        System.out.println();
     }
     public static void sleep(int s) {
         try {

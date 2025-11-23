@@ -48,17 +48,17 @@ public class PIDProvider extends Issuer {
         // list to store proofs (use almost like a stack)
 
         if (!Objects.equals(attestationType, "CitizenCard")) {
-            System.out.println("Attestation type not supported: " + attestationType);
+            //System.out.println("Attestation type not supported: " + attestationType);
             return null;
         }
-        System.out.println("Issuer: Checking if the user has officially registered data.");
+        //System.out.println("Issuer: Checking if the user has officially registered data.");
 
         // fake attributes
         String[] attributes = getPID(ID);
 
         if (attributes == null) return null;
-        System.out.println("        Data has been found.");
-        System.out.println("    Creating merkle tree attestations for " + attestationType + ".");
+        //System.out.println("        Data has been found.");
+        //System.out.println("    Creating merkle tree attestations for " + attestationType + ".");
 
         return createBatchesOfMerkleTrees(attributes, attestationType);
     }

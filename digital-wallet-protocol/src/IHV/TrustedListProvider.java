@@ -89,7 +89,6 @@ public class TrustedListProvider extends Entity {
                     PKIXCertPathBuilderResult certPath = Helper.buildAndVerifyChain(cert, chain);
                     // verified
 
-                    System.out.println("cert good");
                     router.route(new Message<>(name, msg.from(), ATTESTATION_VERIFIED, cert));
                 }
 
@@ -108,7 +107,6 @@ public class TrustedListProvider extends Entity {
                         return;
                     }
 
-                    System.out.println("VP good");
                     router.route(new Message<>(name, msg.from(), ATTESTATION_VERIFIED, VP));
                 }
             }
@@ -149,17 +147,17 @@ public class TrustedListProvider extends Entity {
 
     public static void addRevocation(String attestationNo) {
         if (revocationList.contains(attestationNo)) {
-            System.out.println("Revocation already exists");
+            //System.out.println("Revocation already exists");
             return;
         }
-        System.out.println("Revocation added - "  + attestationNo);
+        //System.out.println("Revocation added - "  + attestationNo);
         revocationList.add(attestationNo);
     }
 
 
     public static boolean isProofRevoked(String attestationNo) {
         var isRevoked = revocationList.contains(attestationNo);
-        if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
+        //if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
         return isRevoked;
     }
 

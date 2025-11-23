@@ -56,7 +56,7 @@ public class AccessCertificateAuthority extends Entity {
     }
 
     public X509Certificate createAccessCertificate(String sigAlg, String entityName, String attestationType, String[] attributesRequired, PublicKey publicKey) {
-        System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
+        //System.out.println("        ACA: Creating Access Certificate for " + attestationType + " with " + Arrays.toString(attributesRequired) + " as attributes.");
         X500Principal subject = new X500Principal(
                 "CN=" + entityName + ",OU=" + attestationType + ",O=ProjectDemo"
         );

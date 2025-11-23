@@ -64,7 +64,7 @@ public class Registrar extends Entity {
         switch (msg.type()) {
 
             case START -> {
-                System.out.println("Creating trust anchor for Registrar");
+                //System.out.println("Creating trust anchor for Registrar");
                 certificate = createTrustAnchor();
                 router.route(new Message<>(getName(), "TLP", NOTIFY_TL_TA, certificate));
 

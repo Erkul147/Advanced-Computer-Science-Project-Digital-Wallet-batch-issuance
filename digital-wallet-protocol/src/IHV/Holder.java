@@ -64,17 +64,17 @@ public class Holder extends Entity {
 
     // step 1: request a specific proof from an issuer
     public void requestProof(String attestationType, String issuerName) {
-        System.out.println("Holder: " + attestationType + " attestations requested from " + issuerName);
+        //System.out.println("Holder: " + attestationType + " attestations requested from " + issuerName);
         router.route(new Message<>(name, issuerName, REQUEST_ATTESTATION, new RequestAttestationsData(ID, attestationType)));
     }
 
 
     // step 5: present a VP
     public void presentProof(String attestationType, String verifierName, int[] disclosedIndexes) {
-        System.out.println("Presenting proof for " + attestationType + " attestations to " + verifierName);
+        //System.out.println("Presenting proof for " + attestationType + " attestations to " + verifierName);
         VerifiableCredential vc = getAttestation(attestationType);
         if (vc == null) {
-            System.out.println("no verifiable credential found for " + attestationType);
+            //System.out.println("no verifiable credential found for " + attestationType);
             return;
         };
 
@@ -101,9 +101,9 @@ public class Holder extends Entity {
         if (verifiableCredentials == null || verifiableCredentials.isEmpty()) return null;
 
         VerifiableCredential vc = verifiableCredentials.getFirst();
-        verifiableCredentials.remove(vc);
-        
-        System.out.println("    Proofs left: " + verifiableCredentials.size());
+        if (Issuer.batchIssuance) verifiableCredentials.remove(vc);
+
+        //System.out.println("    Proofs left: " + verifiableCredentials.size());
 
         return vc;
     }
