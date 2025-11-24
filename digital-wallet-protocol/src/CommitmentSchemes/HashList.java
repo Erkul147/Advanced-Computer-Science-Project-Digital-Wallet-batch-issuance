@@ -3,6 +3,7 @@ package CommitmentSchemes;
 import DataObjects.AuthenticationSteps;
 import Helper.CryptoTools;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class HashList {
@@ -44,7 +45,7 @@ public class HashList {
 
     }
 
-    public AuthenticationSteps generateAuthenticationPath(int[] indexes) {
+    public AuthenticationSteps generateAuthenticationPath(ArrayList<Integer> indexes) {
         AuthenticationSteps authSteps = new AuthenticationSteps();
 
         for (int index : indexes) {
