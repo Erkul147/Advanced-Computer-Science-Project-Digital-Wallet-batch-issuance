@@ -21,6 +21,10 @@ import static Messaging.MessageType.REQUEST_REGISTRATION;
 public class QEAAProvider extends Issuer {
     public QEAAProvider(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
+    }
+
+    @Override
+    protected void setup() {
         var payload = new RegistrationData(name, "Issuer", "AgeProof", new String[]{">16", ">18", ">21", ">23"}, getPublicKey());
         router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
     }

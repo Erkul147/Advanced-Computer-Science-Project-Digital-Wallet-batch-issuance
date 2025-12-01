@@ -55,7 +55,6 @@ public class Registrar extends Entity {
 
     public Registrar(BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super("Registrar", inbox, router);
-
     }
 
     @Override
@@ -63,7 +62,7 @@ public class Registrar extends Entity {
         if (msg == null) return;
         switch (msg.type()) {
 
-            case START -> {
+            case CREATE_TA -> {
                 //System.out.println("Creating trust anchor for Registrar");
                 certificate = createTrustAnchor();
                 router.route(new Message<>(getName(), "TLP", NOTIFY_TL_TA, certificate));

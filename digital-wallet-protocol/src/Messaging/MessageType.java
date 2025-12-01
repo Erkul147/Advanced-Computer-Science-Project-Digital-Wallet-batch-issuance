@@ -6,6 +6,7 @@ public enum MessageType {
     VERIFY_CERT,
     REQUEST_REGISTRATION,
     NOTIFY_TL,
+    CREATE_TA,
     NOTIFY_TL_TA,
     NOTIFY_TL_CA,
     REQUEST_ATTESTATION,

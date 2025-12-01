@@ -9,11 +9,12 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 
 import static Messaging.MessageType.SEND_PUBLIC_KEY;
 
-public abstract class Entity implements Runnable{
+public abstract class Entity implements Runnable {
     protected KeyPair keyPair;
 
     protected final String name;
@@ -25,8 +26,6 @@ public abstract class Entity implements Runnable{
         this.keyPair = CryptoTools.generateAsymmetricKeys();
         this.router = router;
         this.name = name;
-        router.route(new Message<>(name, "TLP", SEND_PUBLIC_KEY, getPublicKey()));
-
     }
 
     public String getName() {
@@ -41,10 +40,17 @@ public abstract class Entity implements Runnable{
         return keyPair.getPublic();
     }
 
+    protected void setup() {
+    };
+
     protected abstract void handle(Message<?> msg) throws GeneralSecurityException;
 
     @Override
     public void run() {
+        System.out.println("Running thread for " + this.getClass().getSimpleName() + ": " + name);
+        if (!this.name.equals("TLP")) router.route(new Message<>(name, "TLP", SEND_PUBLIC_KEY, getPublicKey()));
+        setup();
+
         try {
             while (true) {
                 Message<?> msg = inbox.take();   // waits for a message

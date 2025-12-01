@@ -28,10 +28,14 @@ public class Verifier extends Entity {
     
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
+    }
+
+    @Override
+    protected void setup() {
         var payload = new RegistrationData(name, "Verifier", "CitizenCard", new String[]{"ID","lastname","givennames","dateofbirth"}, getPublicKey());
         router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
-
     }
+
     private HashMap<String, VerifiablePresentation> toVerify = new HashMap<>();
 
     @Override
@@ -76,7 +80,7 @@ public class Verifier extends Entity {
     }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
-        System.out.println("\nVerifier: Verifying merkle proof");
+        System.out.println("Verifier Verifying merkle proof");
 
         // verify all disclosed attributes
         DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes();
@@ -155,7 +159,6 @@ public class Verifier extends Entity {
         if (userData == null) userData = new ArrayList<>();
         userData.add(new VerifierDataCollection(attributesValues, CryptoTools.printHash(finalHash), String.valueOf(presentation.md().timestamp())));
         rootsVerified.put(usersName,  userData);
-
 
         return true;
     }

@@ -27,13 +27,12 @@ public abstract class Issuer extends Entity {
     public final String country = "Denmark";
 
     // size of proof batches
-    public static boolean batchIssuance = false;
+    public static boolean batchIssuance = true;
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
 
     public Issuer(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
-
     }
 
     protected ArrayList<VerifiableCredential> createBatchesOfMerkleTrees(String[] attributes, String attestationType) {
@@ -43,8 +42,8 @@ public abstract class Issuer extends Entity {
 
         int BATCHSIZE = (batchIssuance) ? 30 : 1;
 
-        var msg = (batchIssuance) ? "BATCH ISSUANCE ENABLED" : "BATCH ISSUANCE DISABLED";
-        System.out.println(msg);
+        // var msg = (batchIssuance) ? "BATCH ISSUANCE ENABLED" : "BATCH ISSUANCE DISABLED";
+        // System.out.println(msg);
 
         for (int i = 0; i < BATCHSIZE; i++) {
 

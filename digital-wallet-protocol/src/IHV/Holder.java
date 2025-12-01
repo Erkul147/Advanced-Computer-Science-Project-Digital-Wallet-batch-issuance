@@ -32,6 +32,7 @@ public class Holder extends Entity {
         super(ID, inbox, router);
         this.ID = ID;
     }
+
     @Override
     protected void handle(Message<?> msg) {
 
@@ -42,7 +43,7 @@ public class Holder extends Entity {
                     @SuppressWarnings("unchecked")
                     ArrayList<VerifiableCredential> vcs = (ArrayList<VerifiableCredential>) msg.payload();
                     unverifiedProofs = vcs;
-                    VerifiableCredential example = vcs.getFirst();
+                    VerifiableCredential example = vcs.getFirst(); // first of the 30 attestations is used
                     X509Certificate certificate = example.providerCertificate();
 
                     router.route(new Message<>(name, "TLP", VERIFY_CERT, certificate));

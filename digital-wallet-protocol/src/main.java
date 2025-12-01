@@ -36,6 +36,7 @@ public class main {
         Security.addProvider(new BouncyCastleProvider());
 
 
+        System.out.println("Scenario 1: Creating Registrar, TLP and ACA. Along with their certificates");
         // create mailboxes
         mailboxes.put("Registrar", new LinkedBlockingQueue<>());
         mailboxes.put("ACA", new LinkedBlockingQueue<>());
@@ -43,34 +44,31 @@ public class main {
 
         ArrayList<Entity> trustEntities = new ArrayList<>();
 
+        TrustedListProvider TLP = new TrustedListProvider(mailboxes.get("TLP"), router);
         Registrar registrar = new Registrar(mailboxes.get("Registrar"), router);
         AccessCertificateAuthority ACA = new AccessCertificateAuthority(mailboxes.get("ACA"), router);
-        TrustedListProvider TLP = new TrustedListProvider(mailboxes.get("TLP"), router);
 
-
-        // add to list in order to start a thread for all entities in a loop
+        trustEntities.add(TLP);
         trustEntities.add(registrar);
         trustEntities.add(ACA);
-        trustEntities.add(TLP);
 
-        // starting threads and then sending a starting message to kick the system off
+        // starting threads
         for (Entity entity : trustEntities) {
             new Thread(entity).start();
+            sleep(1);
         }
 
-        //System.out.println("\n-----------------------------------------");
-        //System.out.println("Starting the system");
-        router.route(new Message<>("System", registrar.getName(), MessageType.START, ""));
+        router.route(new Message<>("System", registrar.getName(), MessageType.CREATE_TA, ""));
         sleep(1);
+
+
+        System.out.println("\nScenario 2: Creating issuer and verifier and certificate requests");
 
 
         ArrayList<Entity> entityArraysList = new ArrayList<>();
 
         mailboxes.put("PID", new LinkedBlockingQueue<>());
-        mailboxes.put("AgeProver", new LinkedBlockingQueue<>());
-        mailboxes.put("Verifier1", new LinkedBlockingQueue<>());
-        mailboxes.put("Verifier2", new LinkedBlockingQueue<>());
-        mailboxes.put("DK1234567", new LinkedBlockingQueue<>());
+        mailboxes.put("Medical Body", new LinkedBlockingQueue<>());
 
         // create entities
         //System.out.println("\n-----------------------------------------");
@@ -79,45 +77,56 @@ public class main {
 
 
         Issuer issuer1 = new PIDProvider("PID", mailboxes.get("PID"), router);
-        Issuer issuer2 = new QEAAProvider("AgeProver", mailboxes.get("AgeProver"), router);
-        Verifier verifier1 = new Verifier("Verifier1", mailboxes.get("Verifier1"), router);
-        Verifier verifier2 = new Verifier("Verifier2", mailboxes.get("Verifier2"), router);
-        Holder holder1 = new Holder("DK1234567", mailboxes.get("DK1234567"), router);
+        Verifier verifier1 = new Verifier("Medical Body", mailboxes.get("Medical Body"), router);
 
 
         entityArraysList.add(issuer1);
-        entityArraysList.add(issuer2);
         entityArraysList.add(verifier1);
-        entityArraysList.add(verifier2);
-        entityArraysList.add(holder1);
 
 
-        // starting threads and then sending a starting message to kick the system off
         for (Entity entity : entityArraysList) {
             new Thread(entity).start();
+            sleep(1);
+            System.out.println();
         }
 
-        //System.out.println("\n-----------------------------------------");
-        holder1.requestProof("CitizenCard", issuer1.getName());
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
-        verifier2.requestAttestationFromUser(holder1.getName(), "CitizenCard");
-        sleep(2);
 
-        Verifier.rootsVerified.toString();
+        System.out.println("Scenario 3: Holder requests proof and verifies it");
+        mailboxes.put("DK1234567", new LinkedBlockingQueue<>());
+        Holder holder1 = new Holder("DK1234567", mailboxes.get("DK1234567"), router);
+
+        new Thread(holder1).start();
+
+        holder1.requestProof("CitizenCard", issuer1.getName());
+
+        sleep(1);
+
+
+        System.out.println("\nScenario 4: Holder presents proof to verifier");
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+
+
+        System.out.println("\n-----------------------------------------");
+
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+        verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
+        sleep(1);
+
         Verifier.checkUnlinkability();
         System.out.println();
+
+
     }
     public static void sleep(int s) {
         try {

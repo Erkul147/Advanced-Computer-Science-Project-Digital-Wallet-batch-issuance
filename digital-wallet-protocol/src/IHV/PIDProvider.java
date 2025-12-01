@@ -18,6 +18,10 @@ import static Messaging.MessageType.REQUEST_REGISTRATION;
 public class PIDProvider extends Issuer {
     public PIDProvider(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
+    }
+
+    @Override
+    protected void setup() {
         var payload = new RegistrationData(name, "PID", "CitizenCard", new String[]{"ID","lastname","givennames","dateofbirth","placeofbirth","nationality"}, getPublicKey());
         router.route(new Message<>(name, "Registrar", REQUEST_REGISTRATION, payload));
     }
