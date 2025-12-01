@@ -51,6 +51,24 @@ public class CryptoTools {
         return hashedMessage;
     }
 
+
+    // hash a byte array using SHA-256
+    public static byte[] hashSHA256List(byte[][] message) {
+        byte[] hashedMessage = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            for (int i = 0; i < message.length; i++) {
+                md.update(message[i]);
+            }
+            hashedMessage = md.digest();
+        } catch (NoSuchAlgorithmException e) {e.printStackTrace();}
+
+        return hashedMessage;
+    }
+
+
+
+
     // https://stackoverflow.com/questions/21018355/sha256withrsa-what-does-it-do-and-in-what-order
     // using SHA256 with RSA to sign a message
     public static byte[] signMessage(PrivateKey key, byte[] message) {

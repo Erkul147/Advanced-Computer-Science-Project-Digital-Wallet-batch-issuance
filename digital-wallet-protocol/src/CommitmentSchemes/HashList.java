@@ -20,7 +20,6 @@ public class HashList {
 
     private void createHashList () {
         //System.out.println("\nCreating hash list\n");
-        byte[] combinedHashes = new byte[0];
         list = new byte[attributes.length][32]; // SHA-256 bit: 256 bit / 8 = 32 byte.
         //System.out.println("Is combinedHashes empty?: " + Arrays.toString(combinedHashes));
         for (int i = 0; i < attributes.length; i++) {
@@ -35,20 +34,19 @@ public class HashList {
             list[i] = hash;
             //System.out.println("Add hash to list: " + Arrays.toString(list));
 
-            combinedHashes =  CryptoTools.combineByteArrays(combinedHashes, hash);
             //System.out.println("Combined hashes: " + Arrays.toString(combinedHashes));
             //System.out.println("Combined hashes length: " + combinedHashes.length);
             //System.out.println();
         }
-        finalHash = CryptoTools.hashSHA256(combinedHashes);
-        //System.out.println("FinalHash: " + Arrays.toString(finalHash));
+        finalHash = CryptoTools.hashSHA256List(list);
 
     }
 
     public AuthenticationSteps generateAuthenticationPath(ArrayList<Integer> indexes) {
-        AuthenticationSteps authSteps = new AuthenticationSteps();
+        AuthenticationSteps authSteps = new AuthenticationSteps(list);
 
-        for (int index : indexes) {
+        for (int i = 0; i < indexes.size(); i++) {
+            int index = indexes.get(i);
             //System.out.println("Disclosed attribute " + attributes[index] + " index: " + index);
             authSteps.addAuthenticationSteps(index, attributes[index], salts[index]);
         }
