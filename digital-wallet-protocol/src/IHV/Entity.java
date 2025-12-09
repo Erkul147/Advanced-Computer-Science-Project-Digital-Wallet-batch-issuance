@@ -47,6 +47,7 @@ public abstract class Entity implements Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setName(this.getClass().getSimpleName() + "-" + name);
         System.out.println("Running thread for " + this.getClass().getSimpleName() + ": " + name);
         if (!this.name.equals("TLP")) router.route(new Message<>(name, "TLP", SEND_PUBLIC_KEY, getPublicKey()));
         setup();
@@ -54,7 +55,7 @@ public abstract class Entity implements Runnable {
         try {
             while (true) {
                 Message<?> msg = inbox.take();   // waits for a message
-                //System.out.println(name + " Processing message from : " + msg.from());
+                System.out.println(name + " Processing message from : " + msg.from());
                 handle(msg);                  // process message
             }
         } catch (InterruptedException e) {

@@ -1,32 +1,32 @@
 [
     {
         "x509certificate": {
-            "serialNumber": "1764604494333",
+            "serialNumber": "1765296968208",
             "subject": "CN=PID,OU=CitizenCard,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "CitizenCard",
-            "validFrom": "Mon Dec 01 16:54:55 CET 2025",
-            "publicKey": "RSA Public Key [f2:a0:b0:f2:e9:14:70:7e:6e:f9:68:f8:0a:89:01:7e:da:d5:85:e9],[56:66:d1:a4]\r\n        modulus: b60c54535556c21fe9ca5af24d25490cf6686cf10ee1709ef9bcd86920e21d42bd1acd78d7a0b1c63f7f8ad7a0790b57c2a0e62f539fb74f079a8b401976a544d82a485a254a83b1a2dd86aa5d093158c262096d40d999d29f821bd7385e6104c4388ad3f1cb5a7fc414d8a924689946894516cb85220ffd53a045546a5205e3995ea568dbb1c3c69f76ec00cbd3434af12c7ec8f05e37b5be7466d122083a2deca133c38936e71ee64417e9c813537cdf586f80f31039e225bd097dde9357deabad3b6950bd3d6d92149930730d47db4cc9e4739d4bef2e0c10f1f280fa8b154ab0551e7c22fbee992a30f1ef499a77cf192595d0c525490477dc89fc4fb4b5\r\npublic exponent: 10001\r\n",
+            "validFrom": "Tue Dec 09 17:16:08 CET 2025",
+            "publicKey": "RSA Public Key [5e:ec:89:8b:b7:c3:29:46:29:55:c5:af:2b:58:14:fe:01:44:26:a1],[56:66:d1:a4]\r\n        modulus: ad18a4387bab07ddf0a83d6b59964e945630f417f8e8b1e970e684dde9957cb21fa317eea91f3523f9ecdf19b01a4e56365acb8aacb3c101a2195cfd04845d203d37c3d29e199791b1caf33e2143ba52675a2c5e30b7d146d570ca1e2bc5c1d4ee4b8bf997a8dc06085f69c2563573acdda6d15da1d5d87dec836a62bbd26249832fa2850d74553fd6e6fd71030e1c50b341f9087f98c875fa2ab3720bc6a206057b13d1ea1ed47ed7c081d0e02fcd8750b36c9d389c9ec75361937044c32dfb7c5de1ade7da55401c8f8cb2cbecacbcaecd74089ed19b6b061eb0723c48e777b7f4a63c7090870fe6eb2e44d8522accaba7a55e24255c8222d16fbeaca8d867\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority,O=ProjectDemo",
-            "validTo": "Tue Dec 01 16:54:55 CET 2026",
+            "validTo": "Wed Dec 09 17:16:08 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "CN=PID,OU=CitizenCard,O=ProjectDemo"
     },
     {
         "x509certificate": {
-            "serialNumber": "1764604494334",
+            "serialNumber": "1765296968207",
             "subject": "CN=Medical Body,OU=CitizenCard,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "CitizenCard",
-            "validFrom": "Mon Dec 01 16:54:56 CET 2025",
-            "publicKey": "RSA Public Key [c5:0b:2c:08:7d:41:2e:9a:8f:9f:60:fd:88:eb:a9:0e:42:5b:ef:23],[56:66:d1:a4]\r\n        modulus: b70ec0137c689dff71003b949cf9e684e7969d9ad13abf6417f956214bb070c5b545d5ca0fb46e64d9504456b405e2f269d227d152a1492d9529ea74dae62f084aada9dffe4c2b63adc5e4d9487868caeb15fbfd27c5b52e072b9e90fc2f821146b99f08b09d845b8f961956e7bf1de155bec322df6e13650b8255ce5d4b14f0b0dbd5e7570a5885a397664501d8e4d912d113559cba4aeb2890b924efcfe54985b3bcecd4bbdb489c2e257d5709ea601691bcd3c6cc040ff4b9a354c501ae306a4163a6f1b0f365bf2cf178b125cb2d2df074dea03831304f46cdd1ba556be0f2e9ac86ccfb77329877d2f77c5428dc694aa03534daf8548b0fd480dab3c163\r\npublic exponent: 10001\r\n",
+            "validFrom": "Tue Dec 09 17:16:08 CET 2025",
+            "publicKey": "RSA Public Key [59:e2:4f:d6:68:2f:ff:20:8a:7d:b6:f9:e9:95:a8:59:4d:31:a8:96],[56:66:d1:a4]\r\n        modulus: a6a10f839a8b52bc4b27d029af7a258c2e778fda2da9d67540bd7d20787f74b826d24bec738d719a26ec5efe56582069817a5d52ef7274fd4aa26a759306a61895a380679c65a86bcaaa6d441342511469a1ae1fb112b35dd937a3a8e13bb709ddca644cf9731c303eaf2fd2f96d656b05e1e9ef2a95f6c54ea14366ff2791dee4a22df5537041c28461824ce1af444e553824ad8d80e91a6ce392ae59ec17a12a8b8e35fc338a90ef3a0d4420fc42f3ee72bff7c7f6a88081725006439cfd120f1ca8660722cf061f6ad39b87663a754956357d535bec2fdef8dbbaabf960b215615c44dc9242aa4862a04b53b5ba3f65202f74284d44f92d076b4eb02d0727\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority,O=ProjectDemo",
-            "validTo": "Tue Dec 01 16:54:56 CET 2026",
+            "validTo": "Wed Dec 09 17:16:08 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "CN=Medical Body,OU=CitizenCard,O=ProjectDemo"

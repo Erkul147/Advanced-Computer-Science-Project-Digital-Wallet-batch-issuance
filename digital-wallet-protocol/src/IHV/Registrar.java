@@ -26,7 +26,6 @@ import java.security.PublicKey;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 
 import Helper.Helper;
@@ -51,12 +50,11 @@ import static Messaging.MessageType.*;
 
 public class Registrar extends Entity {
 
-    private X509Certificate certificate;
+    private X509Certificate trustAnchor;
 
     public Registrar(BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super("Registrar", inbox, router);
     }
-
     @Override
     protected void handle(Message<?> msg) {
         if (msg == null) return;
@@ -64,8 +62,8 @@ public class Registrar extends Entity {
 
             case CREATE_TA -> {
                 //System.out.println("Creating trust anchor for Registrar");
-                certificate = createTrustAnchor();
-                router.route(new Message<>(getName(), "TLP", NOTIFY_TL_TA, certificate));
+                trustAnchor = createTrustAnchor();
+                router.route(new Message<>(getName(), "TLP", NOTIFY_TL_TA, trustAnchor));
 
                 router.route(new Message<>(getName(), "TLP", REQUEST_PUBLIC_KEY, "ACA"));
             }
@@ -93,7 +91,7 @@ public class Registrar extends Entity {
         X500Principal subject = new X500Principal("CN=Certificate Authority, O=ProjectDemo");
 
         X509v3CertificateBuilder certBldr = new JcaX509v3CertificateBuilder(
-                certificate.getSubjectX500Principal(),
+                trustAnchor.getSubjectX500Principal(),
                 Helper.calculateSerialNumber(), // id
                 Helper.calculateDate(0), // valid from now
                 Helper.calculateDate(24 * 365), // valid for 365 days

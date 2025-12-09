@@ -58,7 +58,7 @@ public abstract class Issuer extends Entity {
             tree.signedRoot = CryptoTools.signMessage(getPrivateKey(), tree.root.hash);
 
             // add the proof the to list
-            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, this, accessCertificate.get(attestationType)));
+            verifiableCredentials.add(new VerifiableCredential(attestationType, metaData, tree, name, accessCertificate.get(attestationType)));
         }
         //System.out.println("        Last merkle tree's root: " + CryptoTools.printHash(verifiableCredentials.getLast().merkleTree().root.hash));
         //System.out.println("    " + BATCHSIZE + " new attestations created.");

@@ -69,7 +69,6 @@ public class Holder extends Entity {
         router.route(new Message<>(name, issuerName, REQUEST_ATTESTATION, new RequestAttestationsData(ID, attestationType)));
     }
 
-
     // step 5: present a VP
     public void presentProof(String attestationType, String verifierName, int[] disclosedIndexes) {
         //System.out.println("Presenting proof for " + attestationType + " attestations to " + verifierName);
@@ -103,6 +102,8 @@ public class Holder extends Entity {
 
         VerifiableCredential vc = verifiableCredentials.getFirst();
         if (Issuer.batchIssuance) verifiableCredentials.remove(vc);
+
+        if (verifiableCredentials.isEmpty()) requestProof("CitizenCard", vc.issuer());;
 
         //System.out.println("    Proofs left: " + verifiableCredentials.size());
 

@@ -18,11 +18,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class main {
-    
+    private static ArrayList<Thread> threads = new ArrayList<>();
+
     public static void main(String[] args) {
         // mailboxes for all entities on network
         Map<String, BlockingQueue<Message<?>>> mailboxes = new HashMap<>();
         MessageRouter router = new MessageRouter(mailboxes);
+        threads.add(new Thread(router));
+        threads.getLast().start();
+        sleep(1);
 
         startSystem(mailboxes, router);
 
@@ -54,12 +58,12 @@ public class main {
 
         // starting threads
         for (Entity entity : trustEntities) {
-            new Thread(entity).start();
-            sleep(1);
+            threads.add(new Thread(entity));
+            threads.getLast().start();
         }
+        sleep(1);
 
         router.route(new Message<>("System", registrar.getName(), MessageType.CREATE_TA, ""));
-        sleep(1);
 
 
         System.out.println("\nScenario 2: Creating issuer and verifier and certificate requests");
@@ -85,52 +89,49 @@ public class main {
 
 
         for (Entity entity : entityArraysList) {
-            new Thread(entity).start();
-            sleep(1);
-            System.out.println();
+            threads.add(new Thread(entity));
+            threads.getLast().start();
         }
-
+        sleep(1);
 
         System.out.println("Scenario 3: Holder requests proof and verifies it");
         mailboxes.put("DK1234567", new LinkedBlockingQueue<>());
         Holder holder1 = new Holder("DK1234567", mailboxes.get("DK1234567"), router);
 
-        new Thread(holder1).start();
+        threads.add(new Thread(holder1));
+        threads.getLast().start();
+        sleep(1);
 
         holder1.requestProof("CitizenCard", issuer1.getName());
 
-        sleep(1);
 
 
         System.out.println("\nScenario 4: Holder presents proof to verifier");
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
 
 
         System.out.println("\n-----------------------------------------");
 
-        sleep(1);
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
         holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        sleep(1);
         verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
-        sleep(1);
 
-        Verifier.checkUnlinkability();
         System.out.println();
 
+        long now =  System.currentTimeMillis();
+        while (now + 1000 > System.currentTimeMillis()) {
+            holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        }
+
+        Verifier.checkUnlinkability();
 
     }
     public static void sleep(int s) {
         try {
-            Thread.sleep(1000*s);
+            Thread.sleep(1000L *s);
         } catch (InterruptedException _) {}
     }
 }

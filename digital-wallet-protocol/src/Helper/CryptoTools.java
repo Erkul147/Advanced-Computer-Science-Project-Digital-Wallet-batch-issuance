@@ -19,9 +19,8 @@ public class CryptoTools {
     static {
         try {
             generator = KeyPairGenerator.getInstance("RSA", "BC");
-            KeyPairGenerator  kpGen = KeyPairGenerator.getInstance("RSA", "BC");
 
-            kpGen.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
+            generator.initialize(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4));
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }

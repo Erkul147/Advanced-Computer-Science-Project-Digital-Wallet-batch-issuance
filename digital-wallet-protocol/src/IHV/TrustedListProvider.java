@@ -154,7 +154,6 @@ public class TrustedListProvider extends Entity {
         revocationList.add(attestationNo);
     }
 
-
     public static boolean isProofRevoked(String attestationNo) {
         var isRevoked = revocationList.contains(attestationNo);
         //if (isRevoked) System.out.println("Proof not valid: revoked - " + attestationNo);
