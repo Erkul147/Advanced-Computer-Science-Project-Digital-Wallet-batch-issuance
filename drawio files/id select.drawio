@@ -1,0 +1,40 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.7 Chrome/138.0.7204.251 Electron/37.7.1 Safari/537.36" version="28.2.7">
+  <diagram name="Page-1" id="s4MQRqIxZob-KS4WIFjo">
+    <mxGraphModel dx="1426" dy="875" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="120" width="680" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-2" value="&lt;blockquote style=&quot;margin: 0 0 0 40px; border: none; padding: 0px;&quot;&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;National ID:&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;Name:&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;Address:&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;Date of birth:&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;Nationality:&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;/div&gt;&lt;/blockquote&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="129.89" width="220" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="580.6" y="130.27" width="199.4" height="269.73" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-5" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Person.svg;labelBackgroundColor=default;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="585.81" y="136.76" width="190" height="256.76" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-6" value="" style="text;html=1;whiteSpace=wrap;fillColor=#A4A4A4;align=center;verticalAlign=middle;rounded=0;strokeColor=none;fontColor=#333333;gradientColor=none;" vertex="1" parent="1">
+          <mxGeometry x="284" y="146" width="244.7" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-8" value="" style="text;html=1;whiteSpace=wrap;fillColor=#A4A4A4;align=center;verticalAlign=middle;rounded=0;strokeColor=none;fontColor=#333333;gradientColor=none;" vertex="1" parent="1">
+          <mxGeometry x="284" y="222" width="244.7" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-9" value="" style="text;html=1;whiteSpace=wrap;fillColor=#A4A4A4;align=center;verticalAlign=middle;rounded=0;strokeColor=none;fontColor=#333333;gradientColor=none;" vertex="1" parent="1">
+          <mxGeometry x="284" y="297" width="244.7" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-10" value="" style="text;html=1;whiteSpace=wrap;fillColor=#A4A4A4;align=center;verticalAlign=middle;rounded=0;strokeColor=none;fontColor=#333333;gradientColor=none;" vertex="1" parent="1">
+          <mxGeometry x="284" y="448" width="244.7" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-11" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;&amp;nbsp; 15/12/2001&lt;/font&gt;" style="text;html=1;whiteSpace=wrap;fillColor=#d5e8d4;align=left;verticalAlign=middle;rounded=0;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="284" y="372" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M_ElCvxbZJMbigaTsJLP-13" value="NOT DISCLOSED" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=26;rotation=-45;fontColor=#000000;labelBorderColor=#777777;labelBackgroundColor=#ACACAC;" vertex="1" parent="1">
+          <mxGeometry x="528.7" y="252" width="304.22" height="30.14" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
