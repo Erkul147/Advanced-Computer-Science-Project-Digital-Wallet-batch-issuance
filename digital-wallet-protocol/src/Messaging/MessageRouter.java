@@ -20,7 +20,7 @@ public class MessageRouter implements Runnable {
         BlockingQueue<Message<?>> box = mailboxes.get(msg.to());
 
         if (box != null) {
-            System.out.println("MessageType " + msg.type() + " Sending message from " + msg.from() + " to " + msg.to());
+            //System.out.println("MessageType " + msg.type() + " Sending message from " + msg.from() + " to " + msg.to());
             //System.out.println("Displaying payload:");
             //System.out.println(msg.payload());
             //System.out.println("++++++++++++++++++++++++++++++++++++++++++");

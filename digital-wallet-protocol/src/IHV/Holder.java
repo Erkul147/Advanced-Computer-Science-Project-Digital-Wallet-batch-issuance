@@ -16,6 +16,7 @@ import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
 import static Helper.Helper.getAttributeNameFromAttestationTypeAndIndex;
@@ -27,6 +28,7 @@ public class Holder extends Entity {
     private Map<String, ArrayList<VerifiableCredential>> attestations = new HashMap<>();
     private final String ID; // acts as a wallet bound ID from a PID issuer
     private ArrayList<VerifiableCredential> unverifiedProofs = null;
+    Random rand = new Random();
 
     public Holder(String ID, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(ID, inbox, router);
@@ -63,26 +65,30 @@ public class Holder extends Entity {
         }
     }
 
-    // step 1: request a specific proof from an issuer
+    // request a specific proof from an issuer
     public void requestProof(String attestationType, String issuerName) {
         //System.out.println("Holder: " + attestationType + " attestations requested from " + issuerName);
         router.route(new Message<>(name, issuerName, REQUEST_ATTESTATION, new RequestAttestationsData(ID, attestationType)));
     }
 
-    // step 5: present a VP
+    // present a VP
     public void presentProof(String attestationType, String verifierName, int[] disclosedIndexes) {
-        //System.out.println("Presenting proof for " + attestationType + " attestations to " + verifierName);
+
+        // fetching an attestation with specific type, random order.
         VerifiableCredential vc = getAttestation(attestationType);
         if (vc == null) {
-            //System.out.println("no verifiable credential found for " + attestationType);
             return;
         };
 
+        System.out.println(name + " presents attestation to: " + verifierName);
+
+        // creating the merkle tree
         MerkleTree tree = vc.merkleTree();
 
+        // instantiate array to store DisclosedAttribute
         DisclosedAttribute[] disclosedAttributes = new DisclosedAttribute[disclosedIndexes.length];
-        // find the disclosed attributes and salts, the inclusion path and the signed root
 
+        // find the disclosed attributes and salts, the inclusion path and the signed root
         for (int i = 0; i < disclosedAttributes.length; i++) {
             var index =  disclosedIndexes[i];
             DisclosedAttribute disclosedAttribute = new DisclosedAttribute(tree, index, Helper.getAttributeNameFromAttestationTypeAndIndex(vc.credentialType(), disclosedIndexes[i]));
@@ -91,7 +97,8 @@ public class Holder extends Entity {
 
 
         VerifiablePresentation VP = new VerifiablePresentation(vc.metaData(), disclosedAttributes, vc.merkleTree().root,
-                vc.merkleTree().signedRoot, vc.metaData().issuerName(), name, vc.providerCertificate());
+                                                               vc.merkleTree().signedRoot, vc.metaData().issuerName(),
+                                                                name, vc.providerCertificate());
 
         router.route(new Message<>(name, verifierName, PRESENT_PRESENTATION, VP));
     }
@@ -100,12 +107,12 @@ public class Holder extends Entity {
         ArrayList<VerifiableCredential> verifiableCredentials = attestations.get(proofType);
         if (verifiableCredentials == null || verifiableCredentials.isEmpty()) return null;
 
-        VerifiableCredential vc = verifiableCredentials.getFirst();
+        var randomIndex = rand.nextInt(verifiableCredentials.size());
+
+        VerifiableCredential vc = verifiableCredentials.get(randomIndex);
+
         if (Issuer.batchIssuance) verifiableCredentials.remove(vc);
-
         if (verifiableCredentials.isEmpty()) requestProof("CitizenCard", vc.issuer());;
-
-        //System.out.println("    Proofs left: " + verifiableCredentials.size());
 
         return vc;
     }

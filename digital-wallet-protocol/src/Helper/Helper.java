@@ -18,7 +18,7 @@ public class Helper {
             put("attestation", "1.3.6.1.4.1.1");
             put("attributes", "1.3.6.1.4.1.2");
         }};
-    private static HashMap<String, String[]> attestationTypeAttributeNames = new HashMap<>() {{
+    private static final HashMap<String, String[]> attestationTypeAttributeNames = new HashMap<>() {{
         put("CitizenCard", new String[] {"ID", "lastname", "givennames", "dateofbirth", "placeofbirth", "nationality"});
         put("AgeProof", new String[] {"age"});
     }};

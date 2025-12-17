@@ -1,34 +1,66 @@
 [
     {
         "x509certificate": {
-            "serialNumber": "1765296919663",
+            "serialNumber": "1765929315948",
             "subject": "CN=PID,OU=CitizenCard,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "CitizenCard",
-            "validFrom": "Tue Dec 09 17:15:19 CET 2025",
-            "publicKey": "RSA Public Key [37:ef:94:91:61:44:0a:b7:b4:fd:2f:ba:38:ca:ac:2f:01:a9:22:fc],[56:66:d1:a4]\r\n        modulus: 9ded81d461219b94dc673be5880cea536d50bc594093b2962fae41a5245b6972e39144905c7e6eacafb58b594f1033ef1856f416d6613bf04856e67686d44b7ece3d9c9507d6a0688cd06a3e1613e3c36494e5bafa0d9694d72cae4c03567a602d6a36dae7bf870db99bb16ad24438be880db2dcef567970623608867a898fe9c230409f27b4abd0e4219c1ddda008ac6b4b18881a8f3c621b20f44c4418db4b4abb251a450fc3b42aeb937207d7a6a8fac03093678fafc69632f773123696405fb50b16a90693f1d9c36874fcb10338798134bc1d853805633770feae82206373eeeb62ad47c0410c421515d5963188ffd4f7856b6268e202bbfb84f33f45bd\r\npublic exponent: 10001\r\n",
+            "validFrom": "Wed Dec 17 00:55:17 CET 2025",
+            "publicKey": "RSA Public Key [10:d6:fd:0c:6d:d6:94:05:0f:97:4a:9c:d8:72:83:53:ec:9c:75:28],[56:66:d1:a4]\r\n        modulus: ada445583784714b0ede7bb11773c3cdf137dcd74c7dd44ee13c04def81093f36bb954336c6919812a2504f99071122fd7b19fac790bd030e861499b10721abe223fb7b4a78cd2f38e14e895cf2c3ef8a3d6fae8ec8fc118d57fbc5ee020aaac7d0eb78d2a657278c26748ef00f6c16528e648e4a8f1e168a89c5140354530f032365058271e1174de327724c74675f4b48e0f31a2688df3f4c6a0e831de5879ce5c881e4b0359e31fc1b47fbdcd56d9a4df2e6ccdcb3c534f0ec35836bce6ddcaf69da2a47c132d698bafd0ee089f5627eac196a0aac2bb2a90cd364e7904e20d5a3a90c88c66755d3dfffe9f3f4648f1852b6b9cf81bad282575e37f6c0881\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority,O=ProjectDemo",
-            "validTo": "Wed Dec 09 17:15:19 CET 2026",
+            "validTo": "Thu Dec 17 00:55:17 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "CN=PID,OU=CitizenCard,O=ProjectDemo"
     },
     {
         "x509certificate": {
-            "serialNumber": "1765296919664",
+            "serialNumber": "1765929315947",
             "subject": "CN=Medical Body,OU=CitizenCard,O=ProjectDemo",
             "publicKeyAlgorithm": "RSA",
             "publicKeyFormat": "X.509",
             "attestationType": "CitizenCard",
-            "validFrom": "Tue Dec 09 17:15:19 CET 2025",
-            "publicKey": "RSA Public Key [e7:9f:fe:fc:9f:b8:14:7a:94:90:f1:5f:f4:53:85:8a:c1:15:66:f0],[56:66:d1:a4]\r\n        modulus: b241cb4488132f48c72597ff3ffaf5c541507a76aed9c1cf121312421ae546609e32913c07890d3d670a927cc6c5dbb01f99e86fc9168cc71cd6998222c8e4c6303b01bcd40aa6c57b23671d9b38f7a24a133aa91ae0b13afdc2a30fe5c00bb148a4550c259a85f4d9a650abe1c6b3e33e0a4b279ab96b0907c1d7781a71680eeaa4ec194ac8e5a7b22619ca63488b4d570be79f7349bb8ecccf67ef31a2f703b6b04a01a1e619627529f310c0e4d54808abddb933a7b9f7fe91a070607eda3d04edfeddfd2afc95ee2e645153842aaa255bd5c2a33c836ad049193053d7da49f67bb64d6960ee99a97f3e547a3265b86f8ab559c8812203c547916faee345dd\r\npublic exponent: 10001\r\n",
+            "validFrom": "Wed Dec 17 00:55:17 CET 2025",
+            "publicKey": "RSA Public Key [65:76:33:7d:ad:18:3f:c3:8b:9c:03:48:6b:33:9c:60:04:5b:50:5e],[56:66:d1:a4]\r\n        modulus: cdb3ddc1cc467fa1b46ebfdd701dffbcb74ff111d3effbf9606689ac3a96b1ea5f101654fce49075e81ed7afa0cf72dc244859f7f4d3758c0765e4823028a97c74b4c20a1267b2e19bb8d36bbefc358abe5e91fac6ac2be4d8abcd56c03d8f027276b252e6dad0a24c3f63a14cde8b17b29f864f2e4b05f7e7551cfc658a9338ff24c72f1a5b3bd08d33b107ad9f49c3205ab4872a2f5f4d453f927e88359715d24337b136f794382510ed06db20d95ab4f266c147ce82f304874f8986c8a053528c5149f842539892210fe5b50b6ad0655e94c1c6615e20143281b1328adb3527795637858f0a6f6adf9c16630b1085e11225eb69b49910020d75b7f4d6217b\r\npublic exponent: 10001\r\n",
             "version": 3,
             "issuer": "CN=Certificate Authority,O=ProjectDemo",
-            "validTo": "Wed Dec 09 17:15:19 CET 2026",
+            "validTo": "Thu Dec 17 00:55:17 CET 2026",
             "algorithm": "SHA256WITHRSA"
         },
         "name": "CN=Medical Body,OU=CitizenCard,O=ProjectDemo"
+    },
+    {
+        "x509certificate": {
+            "serialNumber": "1765929315949",
+            "subject": "CN=WeChat2,OU=CitizenCard,O=ProjectDemo",
+            "publicKeyAlgorithm": "RSA",
+            "publicKeyFormat": "X.509",
+            "attestationType": "CitizenCard",
+            "validFrom": "Wed Dec 17 00:55:17 CET 2025",
+            "publicKey": "RSA Public Key [bc:33:0d:7d:83:e3:9e:b1:de:69:dc:fd:ad:40:f7:64:c0:2c:da:1b],[56:66:d1:a4]\r\n        modulus: b6c75e8cc1e113752337e201c27e14c9dfa8ee1722331581b0df9ce71c9a1aca7905ebb2767a4d284568a0c72b2130c836398bc53706852f0f49ebfe95f337504ae03ee973e8c98e73f6dd2a3aac627210fd34a676a98913f1052f8b907c6be234e9536f01b8a8bc035cc9a55acaeef950adde01ee5aa8df4518b23103c872c3a7fad7cbe6872e71981e44e40192019114a92aec6a7f2cf778c343f2aa38d3bf1f385f7e391a4ec9c196ab9d1560a4ff4a13542bccc63f6dac62ea165046451e966fb34d6a208c8a249d9a8ecedddf65fcb35510051f587cc2df4f9ea8e26efc368644792d773af9e4c6c3d2f170e5afccaf3cb829be985f2143482d1c86259b\r\npublic exponent: 10001\r\n",
+            "version": 3,
+            "issuer": "CN=Certificate Authority,O=ProjectDemo",
+            "validTo": "Thu Dec 17 00:55:17 CET 2026",
+            "algorithm": "SHA256WITHRSA"
+        },
+        "name": "CN=WeChat2,OU=CitizenCard,O=ProjectDemo"
+    },
+    {
+        "x509certificate": {
+            "serialNumber": "1765929315950",
+            "subject": "CN=WeChat,OU=CitizenCard,O=ProjectDemo",
+            "publicKeyAlgorithm": "RSA",
+            "publicKeyFormat": "X.509",
+            "attestationType": "CitizenCard",
+            "validFrom": "Wed Dec 17 00:55:17 CET 2025",
+            "publicKey": "RSA Public Key [bf:70:a4:21:a2:47:89:b7:ef:6f:e2:52:0b:fd:9e:b4:e8:c6:8d:0a],[56:66:d1:a4]\r\n        modulus: cd625e6bcb1746ab0ced440619c2bbb65bc63e0f20f6ba253c592f83b6927b2939d279ff16d7cdcf76b7bcc1bb9e71def9ff3163a005b94308556eaa1622996f4d06427e5e3f6943c560e6e3c29aa1d320899511ff12c85a632236e00f0dffab4a36c8cb2e94449509a6a584b5e67ee5505de945b003f7f374d2c7db77c2d08ca3597096abd5c90dac058d80e731c7eb18783bd7dd7f932a96211ffe4276f2140203532b02ec395062e56730f6461535cd7804fead92eceeab892c0604b7406a3c95cf2e62358cc1256013476cb1870dcef0a6abb7b07a41d91e9aa65f379b8081d9a19bf99793c345c741f99712d1a6762d2508f4a7ce03325e88309a9f9225\r\npublic exponent: 10001\r\n",
+            "version": 3,
+            "issuer": "CN=Certificate Authority,O=ProjectDemo",
+            "validTo": "Thu Dec 17 00:55:17 CET 2026",
+            "algorithm": "SHA256WITHRSA"
+        },
+        "name": "CN=WeChat,OU=CitizenCard,O=ProjectDemo"
     }
 ]

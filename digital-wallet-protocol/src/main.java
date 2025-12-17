@@ -1,17 +1,13 @@
-import DataObjects.VerifiableCredential;
-import DataObjects.VerifiablePresentation;
-import Helper.CryptoTools;
 import IHV.*;
 import Messaging.Message;
 import Messaging.MessageRouter;
 import Messaging.MessageType;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.security.KeyPair;
 import java.security.Security;
-import java.security.cert.X509Certificate;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -27,7 +23,6 @@ public class main {
         threads.add(new Thread(router));
         threads.getLast().start();
         sleep(1);
-
         startSystem(mailboxes, router);
 
 
@@ -39,8 +34,6 @@ public class main {
         //System.out.println("Adding the security provider");
         Security.addProvider(new BouncyCastleProvider());
 
-
-        System.out.println("Scenario 1: Creating Registrar, TLP and ACA. Along with their certificates");
         // create mailboxes
         mailboxes.put("Registrar", new LinkedBlockingQueue<>());
         mailboxes.put("ACA", new LinkedBlockingQueue<>());
@@ -64,28 +57,23 @@ public class main {
         sleep(1);
 
         router.route(new Message<>("System", registrar.getName(), MessageType.CREATE_TA, ""));
-
-
-        System.out.println("\nScenario 2: Creating issuer and verifier and certificate requests");
-
-
         ArrayList<Entity> entityArraysList = new ArrayList<>();
 
         mailboxes.put("PID", new LinkedBlockingQueue<>());
         mailboxes.put("Medical Body", new LinkedBlockingQueue<>());
-
-        // create entities
-        //System.out.println("\n-----------------------------------------");
-        //System.out.println("Creating entities");
-
+        mailboxes.put("WeChat", new LinkedBlockingQueue<>());
+        mailboxes.put("WeChat2", new LinkedBlockingQueue<>());
 
 
         Issuer issuer1 = new PIDProvider("PID", mailboxes.get("PID"), router);
         Verifier verifier1 = new Verifier("Medical Body", mailboxes.get("Medical Body"), router);
-
+        MalignVerifier malignVerifier = new MalignVerifier("WeChat", mailboxes.get("WeChat"), router);
+        MalignVerifier malignVerifier2 = new MalignVerifier("WeChat2", mailboxes.get("WeChat2"), router);
 
         entityArraysList.add(issuer1);
         entityArraysList.add(verifier1);
+        entityArraysList.add(malignVerifier);
+        entityArraysList.add(malignVerifier2);
 
 
         for (Entity entity : entityArraysList) {
@@ -94,41 +82,53 @@ public class main {
         }
         sleep(1);
 
-        System.out.println("Scenario 3: Holder requests proof and verifies it");
+
+
+        // System.out.println("Scenario 1: Holder requests proof and verifies it");
+
         mailboxes.put("DK1234567", new LinkedBlockingQueue<>());
+        mailboxes.put("DK2345678", new LinkedBlockingQueue<>());
+
         Holder holder1 = new Holder("DK1234567", mailboxes.get("DK1234567"), router);
+        Holder holder2 = new Holder("DK2345678", mailboxes.get("DK2345678"), router);
+
+
 
         threads.add(new Thread(holder1));
         threads.getLast().start();
-        sleep(1);
-
         holder1.requestProof("CitizenCard", issuer1.getName());
 
+        threads.add(new Thread(holder2));
+        threads.getLast().start();
+        holder2.requestProof("CitizenCard", issuer1.getName());
 
 
-        System.out.println("\nScenario 4: Holder presents proof to verifier");
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        sleep(1);
+
+/*
+        System.out.println("\nScenario 2: Holder presents proof to verifier");
+        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{0, 1,2});
 
 
         System.out.println("\n-----------------------------------------");
 
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
-        verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
+        // verifier1.requestAttestationFromUser(holder1.getName(), "CitizenCard");
+*/
+        System.out.println("\nSCENARIO: \nOne MalignVerifier steals data from two holders");
 
-        System.out.println();
-
-        long now =  System.currentTimeMillis();
-        while (now + 1000 > System.currentTimeMillis()) {
-            holder1.presentProof("CitizenCard", verifier1.getName(), new int[]{1,2});
+        for (int i = 0; i < 30; i++) {
+            holder1.presentProof("CitizenCard", malignVerifier.getName(), new int[]{0,1,2});
         }
 
-        Verifier.checkUnlinkability();
+        for (int i = 0; i < 30; i++) {
+            holder2.presentProof("CitizenCard", malignVerifier.getName(), new int[]{0,1,2});
+        }
+
+        sleep(5);
+        malignVerifier.checkUnlinkability();
 
     }
+
     public static void sleep(int s) {
         try {
             Thread.sleep(1000L *s);

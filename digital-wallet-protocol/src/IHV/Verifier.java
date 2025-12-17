@@ -24,7 +24,6 @@ public class Verifier extends Entity {
     // Will store every root from all verifiers. This is for unlinkability data.
 
     public HashMap<String, X509Certificate> accessCertificate = new HashMap<>();
-    public static HashMap<String, ArrayList<VerifierDataCollection>> rootsVerified = new HashMap<>();
     
     public Verifier(String name, BlockingQueue<Message<?>> inbox, MessageRouter router) {
         super(name, inbox, router);
@@ -70,8 +69,6 @@ public class Verifier extends Entity {
                     }
                 }
             }
-
-
         }
     }
 
@@ -80,7 +77,7 @@ public class Verifier extends Entity {
     }
 
     public boolean verifyMerkleTree(VerifiablePresentation presentation) {
-        System.out.println("Verifier Verifying merkle proof");
+        //System.out.println("Verifier Verifying merkle proof");
 
         // verify all disclosed attributes
         DisclosedAttribute[] disclosedAttributes = presentation.disclosedAttributes();
@@ -93,27 +90,13 @@ public class Verifier extends Entity {
         if (disclosedAttributes == null || disclosedAttributes.length == 0) return false;
 
 
-        ArrayList<VerifierDataCollection> userData = null;
-        String usersName = null;
-        ArrayList<String> attributesValues = new ArrayList<>();
+
 
         for (int i = 0; i < disclosedAttributes.length; i++) {
             //System.out.println("    Following Merkle tree inclusion path:");
 
             DisclosedAttribute disclosedAttribute = presentation.disclosedAttributes()[i];
-            InclusionPath path = disclosedAttribute.inclusionPath;
-
-
-            String attributeValue = new String(disclosedAttribute.value, StandardCharsets.UTF_8);
-            attributesValues.add(attributeValue);
-
-            //System.out.println("        disclosed attribute: " + new String(disclosedAttribute.value, StandardCharsets.UTF_8));
-            //System.out.println("        disclosed salt: " + CryptoTools.printHash(disclosedAttribute.salt));
-
-            if (Objects.equals(disclosedAttribute.attributeName, "givennames")) {
-                userData = rootsVerified.get(attributeValue);
-                usersName = attributeValue;
-            }
+            InclusionPath path = disclosedAttribute.inclusionPath; // disclosed attribute contains merkle proof for that set of disclosed attributes
 
             // hashing disclosed attribute with salt
             byte[] combinedAttributes = CryptoTools.combineByteArrays(disclosedAttribute.value, disclosedAttribute.salt);
@@ -121,68 +104,31 @@ public class Verifier extends Entity {
 
             // will loop over the list of hashes. each loop will compute a new hash that is used to compute the next node
             for (int j = 0; j < path.hashes.size(); j++) {
-                //System.out.println("        Computed hash: " + CryptoTools.printHash(hash));
                 // if sibling is left then H(sibling, current node) else H(current node, sibling)
                 hash = (path.isSiblingLeft.get(j)) ?
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(path.hashes.get(j), hash)) :
                         CryptoTools.hashSHA256(CryptoTools.combineByteArrays(hash, path.hashes.get(j)));
             }
-            //System.out.println("        root's hash computed: " + CryptoTools.printHash(hash));
-            //System.out.println();
+
             hashesComputed.add(hash);
-
-
-
 
             // if this hash does not equal the first, the root is not the same, and we cannot verify the tree
             if (!Arrays.toString(hash).equals(Arrays.toString(hashesComputed.getFirst()))) return false;
-
 
             finalHash = hash;
         }
         //System.out.println("    signed root: " + CryptoTools.printHash(signedRoot));
 
 
-
         // use computed root, the given signed root and the public key from the certificate provided which is a known issuer
         // to verify if the attribute and salt was a part of the root
         PublicKey publicKey = presentation.providerCertificate().getPublicKey();
         boolean verified = CryptoTools.verifySignatureMessage(publicKey, finalHash, signedRoot);
-        if (verified) System.out.println("Attestation has been verified");
-        else  System.out.println("Attestation has NOT been verified");
-        if (!verified) return false;
+        //if (verified) System.out.println("Attestation has been verified");
+        //else  System.out.println("Attestation has NOT been verified");
 
-        // UNLINKABILITY CHECK:
-        // if the root is verified then check if the root has been seen before,
-        // if not add it to the "database",
-        // else increment the counter. the counter shows the amount of times a root has been seen
-        if (userData == null) userData = new ArrayList<>();
-        userData.add(new VerifierDataCollection(attributesValues, CryptoTools.printHash(finalHash), String.valueOf(presentation.md().timestamp())));
-        rootsVerified.put(usersName,  userData);
-
-        return true;
+        return verified;
     }
     
-    public static void checkUnlinkability() {
-        var msg = (Issuer.batchIssuance) ? "\nBATCH ISSUANCE WAS ENABLED" : "\nBATCH ISSUANCE WAS DISABLED";
-        System.out.println(msg);
 
-        var keys = rootsVerified.keySet();
-        String attestationRoots = null;
-        int attestationRootsSeen = 0;
-        for (var key : keys) {
-            ArrayList<VerifierDataCollection> dataCollected = rootsVerified.get(key);
-            System.out.println(key + " has been seen " + dataCollected.size() + " times.");
-            for (VerifierDataCollection data : dataCollected) {
-                if (attestationRoots == null) {
-                    attestationRoots = data.root();
-                    attestationRootsSeen++;
-                }
-                if (!Objects.equals(attestationRoots, data.root())) attestationRootsSeen++;
-            }
-        }
-
-        System.out.println("System has recognized " + keys.size() + " holder(s).");
-        System.out.println("Different attestation roots seen: " +  attestationRootsSeen);
-    }
 }

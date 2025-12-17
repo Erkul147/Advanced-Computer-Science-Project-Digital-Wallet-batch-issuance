@@ -55,7 +55,7 @@ public abstract class Entity implements Runnable {
         try {
             while (true) {
                 Message<?> msg = inbox.take();   // waits for a message
-                System.out.println(name + " Processing message from : " + msg.from());
+                // System.out.println(name + " Processing message from : " + msg.from());
                 handle(msg);                  // process message
             }
         } catch (InterruptedException e) {
